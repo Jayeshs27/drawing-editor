@@ -38,7 +38,8 @@ class Line:
         return self.start_x, self.start_y, self.end_x, self.end_y
 
     def intersect(self, x1, y1, x2, y2):
-        return False  # Lines are not considered for selection in this implementation
+    # Check if any part of the line segment intersects with or lies within the rectangle
+        return (min(x1, x2) <= self.start_x <= max(x1, x2) or min(x1, x2) <= self.end_x <= max(x1, x2)) and (min(y1, y2) <= self.start_y <= max(y1, y2) or min(y1, y2) <= self.end_y <= max(y1, y2))
 
 class DrawingApp:
     def __init__(self, master):
