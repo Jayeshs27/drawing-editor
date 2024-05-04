@@ -60,7 +60,7 @@ class DrawingApp:
         if self.selected_item == Rectangle or self.selected_item == Line:
             self.shapes[-1].update(event.x, event.y)
     
-    def end_draw(self):
+    def end_draw(self, event):
         self.selected_item = None
 
 def main():
