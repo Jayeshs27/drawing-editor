@@ -5,20 +5,28 @@ class Rectangle:
         self.canvas = canvas
         self.start_x = start_x
         self.start_y = start_y
+        self.end_x = start_x
+        self.end_y = start_y
         self.shape = self.canvas.create_rectangle(start_x, start_y, start_x, start_y, outline='black')
     
     def update(self, end_x, end_y):
-        self.canvas.coords(self.shape, self.start_x, self.start_y, end_x, end_y)
+        self.end_x = end_x
+        self.end_y = end_y
+        self.canvas.coords(self.shape, self.start_x, self.start_y, self.end_x, self.end_y)
 
 class Line:
     def __init__(self, canvas, start_x, start_y):
         self.canvas = canvas
         self.start_x = start_x
         self.start_y = start_y
+        self.end_x = start_x
+        self.end_y = start_y
         self.shape = self.canvas.create_line(start_x, start_y, start_x, start_y, fill='black')
     
     def update(self, end_x, end_y):
-        self.canvas.coords(self.shape, self.start_x, self.start_y, end_x, end_y)
+        self.end_x = end_x
+        self.end_y = end_y
+        self.canvas.coords(self.shape, self.start_x, self.start_y, self.end_x, self.end_y)
 
 class DrawingApp:
     def __init__(self, master):
@@ -26,7 +34,7 @@ class DrawingApp:
         self.canvas = tk.Canvas(master, width=400, height=400, bg='white')
         self.canvas.pack()
         self.selected_item = None
-        self.shapes = []
+        self.shapes = []  # List to store drawn objects
         self.toolbar = tk.Frame(master)
         self.toolbar.pack(side=tk.TOP, fill=tk.X)
         
@@ -50,11 +58,13 @@ class DrawingApp:
         if self.selected_item == Rectangle:
             self.start_x = event.x
             self.start_y = event.y
-            self.shapes.append(Rectangle(self.canvas, event.x, event.y))
+            shape = Rectangle(self.canvas, event.x, event.y)
+            self.shapes.append(shape)
         elif self.selected_item == Line:
             self.start_x = event.x
             self.start_y = event.y
-            self.shapes.append(Line(self.canvas, event.x, event.y))
+            shape = Line(self.canvas, event.x, event.y)
+            self.shapes.append(shape)
     
     def draw(self, event):
         if self.selected_item == Rectangle or self.selected_item == Line:
@@ -67,6 +77,9 @@ def main():
     root = tk.Tk()
     app = DrawingApp(root)
     root.mainloop()
+    # for shape in app.shapes:
+    #     print(shape.start_x, shape.start_y, shape.end_x, shape.end_y)
+    
 
 if __name__ == "__main__":
     main()
