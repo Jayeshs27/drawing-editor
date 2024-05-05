@@ -22,30 +22,43 @@ class Rectangle:
     def get_coords(self):
         return self.start_x, self.start_y, self.end_x, self.end_y
 
-    def intersect(self, x1, y1, x2, y2):
-        return (
-            y1 <= self.start_y <= y2
-            or y1 <= self.end_x <= y2
-            or x1 <= self.start_x <= x2
-            or x1 <= self.end_x <= x2
-        )
     # def intersect(self, x1, y1, x2, y2):
-    #     rect_x1, rect_y1, rect_x2, rect_y2 = self.get_coords()
+    #     return (
+    #         y1 <= self.start_y <= y2
+    #         or y2 <= self.start_y <= y1
+    #         or y1 <= self.end_x <= y2
+    #         or y2 <= self.end_x <= y2
+    #         or x1 <= self.start_x <= x2
+    #         or x2 <= self.start_x <= x1
+    #         or x1 <= self.end_x <= x2
+    #         or x2 <= self.end_x <= x1
+    #     )
 
-    #     return not (x2 < rect_x1 or x1 > rect_x2 or y2 < rect_y1 or y1 > rect_y2)
+    def intersect(self, x1, y1, x2, y2):
+        rect_x1, rect_y1, rect_x2, rect_y2 = self.get_coords()
+
+        return not (
+            x2 < rect_x1 or x1 > rect_x2 or y2 < rect_y1 or y1 > rect_y2
+        ) and not ((min(self.start_x,self.end_x) < x1 < max(self.start_x,self.end_x)) and
+                   (min(self.start_x,self.end_x) < x2 < max(self.start_x,self.end_x)) and 
+                   (min(self.start_y,self.end_y) < y1 < max(self.start_y,self.end_y)) and
+                   (min(self.start_y,self.end_y) < y2 < max(self.start_y,self.end_y))
+                   ) 
 
 
 def line_equation(x, y, slope, x1, y1):
     return (y - y1) - slope * (x - x1)
 
+
 def flatten_list(nested_list):
-        flat_list = []
-        for item in nested_list:
-            if isinstance(item, list):
-                flat_list.extend(flatten_list(item))
-            else:
-                flat_list.append(item)
-        return flat_list
+    flat_list = []
+    for item in nested_list:
+        if isinstance(item, list):
+            flat_list.extend(flatten_list(item))
+        else:
+            flat_list.append(item)
+    return flat_list
+
 
 class Line:
     def __init__(self, canvas, start_x, start_y):
@@ -164,12 +177,17 @@ class DrawingApp:
             if self.selection_rect:
                 self.canvas.delete(self.selection_rect)
             self.selection_rect = self.canvas.create_rectangle(
-                self.start_x, self.start_y, event.x, event.y, dash=(2, 2), outline="black"
+                self.start_x,
+                self.start_y,
+                event.x,
+                event.y,
+                dash=(2, 2),
+                outline="black",
             )
         else:
             if self.selected_item == Rectangle or self.selected_item == Line:
                 if self.selection_rect:
-                    self.canvas.delete(self.selection_rect) 
+                    self.canvas.delete(self.selection_rect)
                 self.selection_rect = None
                 self.shapes[-1].update(event.x, event.y)
 
@@ -182,7 +200,7 @@ class DrawingApp:
             x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
             for i in range(len(self.shapes)):
                 if type(self.shapes[i]) == list:
-                    flattened_list = flatten_list(self.shapes[i]) 
+                    flattened_list = flatten_list(self.shapes[i])
                     for j in range(len(flattened_list)):
                         if flattened_list[j].intersect(x1, y1, x2, y2):
                             for del_elem in flattened_list:
@@ -193,7 +211,7 @@ class DrawingApp:
                 elif self.shapes[i].intersect(x1, y1, x2, y2):
                     self.canvas.delete(self.shapes[i].shape)
                     temp_list.append(i)
-                    
+
             for i in list(range(len(temp_list))):
                 self.shapes.pop(temp_list[i])
                 for j in range(i + 1, len(temp_list)):
@@ -208,11 +226,11 @@ class DrawingApp:
             for i in range(len(self.shapes)):
 
                 if type(self.shapes[i]) == list:
-                    flattened_list = flatten_list(self.shapes[i]) 
+                    flattened_list = flatten_list(self.shapes[i])
                     for j in range(len(flattened_list)):
                         if flattened_list[j].intersect(x1, y1, x2, y2):
                             group_list.append(self.shapes[i])
-                            temp_list.append(i)                              
+                            temp_list.append(i)
 
                 elif self.shapes[i].intersect(x1, y1, x2, y2):
                     group_list.append(self.shapes[i])
@@ -225,6 +243,7 @@ class DrawingApp:
             self.shapes.append(group_list)
             self.activate_draw_mode()
         print(self.shapes)
+
 
 def main():
     root = tk.Tk()
