@@ -269,6 +269,7 @@ class DrawingApp:
                     self.shapes.extend(self.shapes[i])
                     self.shapes.pop(i)
         print(self.shapes)
+        self.activate_draw_mode()
 
     def ungroup_all(self):
         # temp_list = []
