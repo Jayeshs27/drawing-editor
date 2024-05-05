@@ -182,17 +182,30 @@ class DrawingApp:
 
         self.edit_button = tk.Button(self.toolbar, text="Edit", command=self.open_dialog)
         self.edit_button.pack(side=tk.LEFT)
-        self.dropdown = tk.OptionMenu(master, self.selected_value, "red", "black", "blue", "green")
-        self.dropdown.pack(side=tk.LEFT)
-        # Add a button to display the selected option
-        self.update_color = tk.Button(master, text="set color", command=self.on_option_select)
-        self.update_color.pack(side=tk.LEFT)
 
-        self.dropdown2 = tk.OptionMenu(master, self.selected_value2, "0", "25", "50")
-        self.dropdown2.pack(side=tk.LEFT)
-        # Add a button to display the selected option
-        self.update_color2 = tk.Button(master, text="set radius", command=self.on_option_select2)
-        self.update_color2.pack(side=tk.LEFT)
+        self.red_button=tk.Button(self.toolbar,fg='red',bg='red', text="", command=self.set_color_red)
+        self.red_button.pack(side=tk.TOP)
+
+        self.green_button=tk.Button(self.toolbar,fg='green',bg='green', text="", command=self.set_color_green)
+        self.green_button.pack(side=tk.TOP)
+
+        self.blue_button=tk.Button(self.toolbar,fg='blue',bg='blue', text="", command=self.set_color_blue)
+        self.blue_button.pack(side=tk.TOP)
+
+        self.black_button=tk.Button(self.toolbar,fg='black',bg='black', text="", command=self.set_color_black)
+        self.black_button.pack(side=tk.TOP)
+
+        # self.dropdown2 = tk.OptionMenu(master, self.selected_value2, "0", "25", "50")
+        # self.dropdown2.pack(side=tk.LEFT)
+        # # Add a button to display the selected option
+        # self.update_color2 = tk.Button(master, text="set radius", command=self.on_option_select2)
+        # self.update_color2.pack(side=tk.LEFT)
+
+        self.radio = tk.IntVar()     
+        self.R1 = tk.Radiobutton(self.toolbar, text="ROUNDED", variable=self.radio, value=1,  command=self.set_rounded)  
+        self.R1.pack(side=tk.TOP)  
+        self.R2 = tk.Radiobutton(self.toolbar, text="UNROUNDED", variable=self.radio, value=2,  command=self.set_unrounded)  
+        self.R2.pack(side=tk.TOP)
 
         self.select_mode = False
 
@@ -414,6 +427,20 @@ class DrawingApp:
         return
     def set_edit_color_black(self):
         self.edit_color="black"
+
+
+    def set_color_red(self):
+        self.color="red"
+        return
+    def set_color_green(self):
+        self.color="green"
+        return
+    def set_color_blue(self):
+        self.color="blue"
+        return
+    def set_color_black(self):
+        self.color="black"
+
     def set_edit_rounded(self):
         self.edit_radius=50
         return
@@ -421,6 +448,13 @@ class DrawingApp:
         self.edit_radius=0
         return
     
+    def set_rounded(self):
+        self.radius=50
+        return
+    def set_unrounded(self):
+        self.radius=0
+        return
+
     def group_selected(self):
         group_list = []
         temp_list = []
