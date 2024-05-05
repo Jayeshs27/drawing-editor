@@ -178,8 +178,11 @@ class DrawingApp:
 
     def activate_selection(self):
         self.selected_item = None
+        if self.selection_rect:
+            self.canvas.delete(self.selection_rect)
         self.select_mode = True
         self.selection_rect = None
+
 
     def activate_draw_mode(self):
         self.select_mode = False
@@ -248,30 +251,6 @@ class DrawingApp:
             self.end_move(event)
         
 
-    def delete_selected(self):
-        # temp_list = []
-        # if self.selection_rect:
-        #     x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
-        #     for i in range(len(self.shapes)):
-        #         if type(self.shapes[i]) == list:
-        #             flattened_list = flatten_list(self.shapes[i])
-        #             for j in range(len(flattened_list)):
-        #                 if flattened_list[j].intersect(x1, y1, x2, y2):
-        #                     for del_elem in flattened_list:
-        #                         self.canvas.delete(del_elem.shape)
-        #                     temp_list.append(i)
-        #                     break
-
-        #         elif self.shapes[i].intersect(x1, y1, x2, y2):
-        #             self.canvas.delete(self.shapes[i].shape)
-        #             temp_list.append(i)
-
-        #     for i in list(range(len(temp_list))):
-        #         self.shapes.pop(temp_list[i])
-        #         for j in range(i + 1, len(temp_list)):
-        #             temp_list[j] -= 1
-        self.canvas.delete('selected-object')
-        self.activate_draw_mode()
 
     def group_selected(self):
         group_list = []
@@ -304,49 +283,87 @@ class DrawingApp:
             self.select_mode = False
             self.move_mode = True
 
+    def delete_selected(self):
+        temp_list = []
+        if self.selection_rect:
+            x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
+            for i in range(len(self.shapes)):
+                if type(self.shapes[i]) == list:
+                    flattened_list = flatten_list(self.shapes[i])
+                    for j in range(len(flattened_list)):
+                        if flattened_list[j].intersect(x1, y1, x2, y2):
+                            for del_elem in flattened_list:
+                                self.canvas.delete(del_elem.shape)
+                            temp_list.append(i)
+                            break
+
+                elif self.shapes[i].intersect(x1, y1, x2, y2):
+                    self.canvas.delete(self.shapes[i].shape)
+                    temp_list.append(i)
+
+            for i in list(range(len(temp_list))):
+                self.shapes.pop(temp_list[i])
+                for j in range(i + 1, len(temp_list)):
+                    temp_list[j] -= 1
+        # self.canvas.delete('selected-object')
+        self.activate_draw_mode()
+
     def move_selected(self, event):
         if self.move_mode:
             if self.selection_rect:
+                x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
                 dx = event.x - self.move_start_x
                 dy = event.y - self.move_start_y
-                self.canvas.move('selected-object', dx, dy)
+                # self.canvas.move('selected-object', dx, dy)
+                for i in range(len(self.shapes)):
+                    if type(self.shapes[i]) == list:
+                        flattened_list = flatten_list(self.shapes[i])
+                        for j in range(len(flattened_list)):
+                            if flattened_list[j].intersect(x1, y1, x2, y2):
+                                for elem in flattened_list:
+                                    self.canvas.move(elem.shape, dx, dy)
+                                break
+
+                    elif self.shapes[i].intersect(x1, y1, x2, y2):
+                        self.canvas.move(self.shapes[i].shape, dx, dy)
 
                 self.move_start_x = event.x
                 self.move_start_y = event.y
 
     def end_move(self, event):
-        x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
-        for i in range(len(self.shapes)):
-            if type(self.shapes[i]) == list:
-                flattened_list = flatten_list(self.shapes[i])
-                for j in range(len(flattened_list)):
-                    if flattened_list[j].intersect(x1, y1, x2, y2):
-                        for elem in flattened_list:
-                                self.canvas.dtag('selected-object',elem.shape)
-                        break
+        # x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
+        # for i in range(len(self.shapes)):
+        #     if type(self.shapes[i]) == list:
+        #         flattened_list = flatten_list(self.shapes[i])
+        #         for j in range(len(flattened_list)):
+        #             if flattened_list[j].intersect(x1, y1, x2, y2):
+        #                 for elem in flattened_list:
+        #                         self.canvas.dtag('selected-object',elem.shape)
+        #                 break
 
-            elif self.shapes[i].intersect(x1, y1, x2, y2):
-                self.canvas.dtag('selected-object', self.shapes[i].shape)
-        self.canvas.dtag('selected-object',self.selection_rect)
+        #     elif self.shapes[i].intersect(x1, y1, x2, y2):
+        #         self.canvas.dtag('selected-object', self.shapes[i].shape)
+        # self.canvas.dtag('selected-object',self.selection_rect)
         self.canvas.delete(self.selection_rect)
         self.move_start_x = None
         self.move_start_y = None
         self.move_mode = False
 
     def ungroup_selected(self):
-        x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
-        for i in range(len(self.shapes)):
-            if type(self.shapes[i]) == list:
-                flattened_list = flatten_list(self.shapes[i])
-                flag = False
-                for ele in flattened_list:
-                    if ele.intersect(x1, y1, x2, y2):
-                        flag = True
-                        break
-                if flag:
-                    self.shapes.extend(self.shapes[i])
-                    self.shapes.pop(i)
-        print(self.shapes)
+        if self.selection_rect:
+            x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
+            for i in range(len(self.shapes)):
+                if type(self.shapes[i]) == list:
+                    flattened_list = flatten_list(self.shapes[i])
+                    flag = False
+                    for ele in flattened_list:
+                        if ele.intersect(x1, y1, x2, y2):
+                            flag = True
+                            break
+                    if flag:
+                        self.shapes.extend(self.shapes[i])
+                        self.shapes.pop(i)
+            print(self.shapes)
         self.activate_draw_mode()
 
     def ungroup_all(self):
