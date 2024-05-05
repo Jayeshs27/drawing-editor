@@ -39,11 +39,12 @@ class Rectangle:
 
         return not (
             x2 < rect_x1 or x1 > rect_x2 or y2 < rect_y1 or y1 > rect_y2
-        ) and not ((min(self.start_x,self.end_x) < x1 < max(self.start_x,self.end_x)) and
-                   (min(self.start_x,self.end_x) < x2 < max(self.start_x,self.end_x)) and 
-                   (min(self.start_y,self.end_y) < y1 < max(self.start_y,self.end_y)) and
-                   (min(self.start_y,self.end_y) < y2 < max(self.start_y,self.end_y))
-                   ) 
+        ) and not (
+            (min(self.start_x, self.end_x) < x1 < max(self.start_x, self.end_x))
+            and (min(self.start_x, self.end_x) < x2 < max(self.start_x, self.end_x))
+            and (min(self.start_y, self.end_y) < y1 < max(self.start_y, self.end_y))
+            and (min(self.start_y, self.end_y) < y2 < max(self.start_y, self.end_y))
+        )
 
 
 def line_equation(x, y, slope, x1, y1):
@@ -132,10 +133,10 @@ class DrawingApp:
         )
         self.group_button.pack(side=tk.LEFT)
 
-        # self.group_button = tk.Button(
-        #     self.toolbar, text="Ungroup Selected", command=self.ungroup_selected
-        # )
-        # self.group_button.pack(side=tk.LEFT)
+        self.group_button = tk.Button(
+            self.toolbar, text="Ungroup Selected", command=self.ungroup_selected
+        )
+        self.group_button.pack(side=tk.LEFT)
 
         self.ungroup_all_button = tk.Button(
             self.toolbar, text="Ungroup All", command=self.ungroup_all
@@ -254,8 +255,20 @@ class DrawingApp:
             self.activate_draw_mode()
         print(self.shapes)
 
-    # def ungroup_selected(self);
-        
+    def ungroup_selected(self):
+        x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
+        for i in range(len(self.shapes)):
+            if type(self.shapes[i]) == list:
+                flattened_list = flatten_list(self.shapes[i])
+                flag = False
+                for ele in flattened_list:
+                    if ele.intersect(x1, y1, x2, y2):
+                        flag = True
+                        break
+                if flag:
+                    self.shapes.extend(self.shapes[i])
+                    self.shapes.pop(i)
+        print(self.shapes)
 
     def ungroup_all(self):
         # temp_list = []
@@ -263,12 +276,12 @@ class DrawingApp:
         #     # x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
         # for i in range(len(self.shapes)):
         #     if type(self.shapes[i]) == list:
-        #         flattened_list = flatten_list(self.shapes[i]) 
+        #         flattened_list = flatten_list(self.shapes[i])
         #         for ungroup in range(len(flattened_list)):
         #             # if self.shapes[i][j].intersect(x1, y1, x2, y2):
         #             self.shapes.append(flattened_list[ungroup])
-        #         temp_list.append(i)      
-        
+        #         temp_list.append(i)
+
         #     # elif self.shapes[i].intersect(x1, y1, x2, y2):
         #     #     self.shapes.append(self.shapes[i])
         #     #     temp_list.append(i)
