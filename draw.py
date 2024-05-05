@@ -93,6 +93,11 @@ class DrawingApp:
         )
         self.select_button.pack(side=tk.LEFT)
 
+        self.select_button = tk.Button(
+            self.toolbar, text="Move", command=self.activate_move_mode
+        )
+        self.select_button.pack(side=tk.LEFT)
+
         self.rect_button = tk.Button(
             self.toolbar, text="Rectangle", command=self.draw_rectangle
         )
@@ -107,6 +112,11 @@ class DrawingApp:
         self.delete_button.pack(side=tk.LEFT)
 
         self.select_mode = False
+
+        self.move_mode = False  # move mode
+        self.move_start_x = None
+        self.move_start_y = None
+
         self.canvas.bind("<Button-1>", self.start_draw)
         self.canvas.bind("<B1-Motion>", self.draw)
         self.canvas.bind("<ButtonRelease-1>", self.end_draw)
@@ -123,6 +133,7 @@ class DrawingApp:
         self.selected_item = None
         self.select_mode = True
         self.selection_rect = None
+        # self.canvas.bind("<Button-1>", self.activate_move_mode)
 
     def activate_draw_mode(self):
         self.select_mode = False
@@ -134,6 +145,10 @@ class DrawingApp:
         if self.select_mode:
             self.start_x = event.x
             self.start_y = event.y
+        elif self.move_mode:
+            self.move_start_x = event.x
+            self.move_start_y = event.y
+            self.move_selected(event)
         else:
             if self.selected_item == Rectangle:
                 self.start_x = event.x
@@ -147,12 +162,15 @@ class DrawingApp:
                 self.shapes.append(shape)
 
     def draw(self, event):
+
         if self.select_mode:
             if self.selection_rect:
                 self.canvas.delete(self.selection_rect)
             self.selection_rect = self.canvas.create_rectangle(
                 self.start_x, self.start_y, event.x, event.y, dash=(2, 2)
             )
+        elif self.move_mode:
+            self.move_selected(event)
         else:
             if self.selected_item == Rectangle or self.selected_item == Line:
                 if self.selection_rect:
@@ -161,6 +179,8 @@ class DrawingApp:
                 self.shapes[-1].update(event.x, event.y)
 
     def end_draw(self, event):
+        if self.move_mode:
+            self.end_move(event)
         pass
 
     def delete_selected(self):
@@ -176,6 +196,37 @@ class DrawingApp:
                 for j in range(i + 1, len(temp_list)):
                     temp_list[j] -= 1
             self.activate_draw_mode()
+
+    def activate_move_mode(self):
+        if self.selection_rect:
+            self.select_mode = False
+            self.move_mode = True
+            x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
+            for shape in self.shapes:
+                if shape.intersect(x1, y1, x2, y2):
+                    self.canvas.addtag_withtag("move-objects", shape.shape)
+            self.canvas.addtag_withtag('move-objects',self.selection_rect)
+
+    def move_selected(self, event):
+        if self.move_mode:
+            if self.selection_rect:
+                dx = event.x - self.move_start_x
+                dy = event.y - self.move_start_y
+                self.canvas.move('move-objects', dx, dy)
+
+                self.move_start_x = event.x
+                self.move_start_y = event.y
+
+    def end_move(self, event):
+        x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
+        for shape in self.shapes:
+            if shape.intersect(x1, y1, x2, y2):
+                self.canvas.dtag("move-objects", shape.shape)
+        self.canvas.dtag('move-objects',self.selection_rect)
+        self.canvas.delete(self.selection_rect)
+        self.move_start_x = None
+        self.move_start_y = None
+        self.move_mode = False
 
 
 def main():
