@@ -132,6 +132,11 @@ class DrawingApp:
         )
         self.group_button.pack(side=tk.LEFT)
 
+        # self.group_button = tk.Button(
+        #     self.toolbar, text="Ungroup Selected", command=self.ungroup_selected
+        # )
+        # self.group_button.pack(side=tk.LEFT)
+
         self.ungroup_all_button = tk.Button(
             self.toolbar, text="Ungroup All", command=self.ungroup_all
         )
@@ -249,26 +254,30 @@ class DrawingApp:
             self.activate_draw_mode()
         print(self.shapes)
 
-    def ungroup_all(self):
-        temp_list = []
-        # if self.selection_rect:
-            # x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
-        for i in range(len(self.shapes)):
-            if type(self.shapes[i]) == list:
-                flattened_list = flatten_list(self.shapes[i]) 
-                for ungroup in range(len(flattened_list)):
-                    # if self.shapes[i][j].intersect(x1, y1, x2, y2):
-                    self.shapes.append(flattened_list[ungroup])
-                temp_list.append(i)      
+    # def ungroup_selected(self);
         
-            # elif self.shapes[i].intersect(x1, y1, x2, y2):
-            #     self.shapes.append(self.shapes[i])
-            #     temp_list.append(i)
 
-        for i in list(range(len(temp_list))):
-            self.shapes.pop(temp_list[i])
-            for j in range(i + 1, len(temp_list)):
-                temp_list[j] -= 1
+    def ungroup_all(self):
+        # temp_list = []
+        # # if self.selection_rect:
+        #     # x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
+        # for i in range(len(self.shapes)):
+        #     if type(self.shapes[i]) == list:
+        #         flattened_list = flatten_list(self.shapes[i]) 
+        #         for ungroup in range(len(flattened_list)):
+        #             # if self.shapes[i][j].intersect(x1, y1, x2, y2):
+        #             self.shapes.append(flattened_list[ungroup])
+        #         temp_list.append(i)      
+        
+        #     # elif self.shapes[i].intersect(x1, y1, x2, y2):
+        #     #     self.shapes.append(self.shapes[i])
+        #     #     temp_list.append(i)
+
+        # for i in list(range(len(temp_list))):
+        #     self.shapes.pop(temp_list[i])
+        #     for j in range(i + 1, len(temp_list)):
+        #         temp_list[j] -= 1
+        self.shapes = flatten_list(self.shapes)
         self.activate_draw_mode()
         print(self.shapes)
 
