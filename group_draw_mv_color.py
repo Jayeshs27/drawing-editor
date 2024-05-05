@@ -442,14 +442,14 @@ class DrawingApp:
         self.color="black"
 
     def set_edit_rounded(self):
-        self.edit_radius=50
+        self.edit_radius=25
         return
     def set_edit_unrounded(self):
         self.edit_radius=0
         return
     
     def set_rounded(self):
-        self.radius=50
+        self.radius=25
         return
     def set_unrounded(self):
         self.radius=0
