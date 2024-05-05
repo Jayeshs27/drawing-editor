@@ -59,6 +59,13 @@ def flatten_list(nested_list):
             flat_list.append(item)
     return flat_list
 
+def flatten2(nested_list):
+    for element in nested_list:
+        if isinstance(element, list):
+            yield from flatten2(element)
+        else:
+            yield element
+
 
 class Line:
     def __init__(self, canvas, start_x, start_y):
@@ -231,23 +238,23 @@ class DrawingApp:
                 self.shapes[-1].update(event.x, event.y)
 
     def end_draw(self, event):
-        if self.select_mode:
-            x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
-            for i in range(len(self.shapes)):
-                if type(self.shapes[i]) == list:
-                    flattened_list = flatten_list(self.shapes[i])
-                    for j in range(len(flattened_list)):
-                        if flattened_list[j].intersect(x1, y1, x2, y2):
-                            for elem in flattened_list:
-                                 self.canvas.addtag_withtag('selected-object',elem.shape)
-                            break
+        # if self.select_mode:
+        #     x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
+        #     for i in range(len(self.shapes)):
+        #         if type(self.shapes[i]) == list:
+        #             flattened_list = flatten_list(self.shapes[i])
+        #             for j in range(len(flattened_list)):
+        #                 if flattened_list[j].intersect(x1, y1, x2, y2):
+        #                     for elem in flattened_list:
+        #                          self.canvas.addtag_withtag('selected-object',elem.shape)
+        #                     break
 
-                elif self.shapes[i].intersect(x1, y1, x2, y2):
-                    self.canvas.addtag_withtag('selected-object', self.shapes[i].shape)
+        #         elif self.shapes[i].intersect(x1, y1, x2, y2):
+        #             self.canvas.addtag_withtag('selected-object', self.shapes[i].shape)
             
-            self.canvas.addtag_withtag('selected-object',self.selection_rect)
+        #     self.canvas.addtag_withtag('selected-object',self.selection_rect)
 
-        elif self.move_mode:
+        if self.move_mode:
             self.end_move(event)
         
 
@@ -317,15 +324,23 @@ class DrawingApp:
                 # self.canvas.move('selected-object', dx, dy)
                 for i in range(len(self.shapes)):
                     if type(self.shapes[i]) == list:
-                        flattened_list = flatten_list(self.shapes[i])
+                        flattened_list = list(flatten2(self.shapes[i]))
                         for j in range(len(flattened_list)):
                             if flattened_list[j].intersect(x1, y1, x2, y2):
                                 for elem in flattened_list:
                                     self.canvas.move(elem.shape, dx, dy)
+                                    elem.start_x = 20
+                                    elem.end_x = 150
+                                    elem.start_y = 20
+                                    elem.end_y = 150
+
+                                    print("elem start = ", elem.start_x)
+                                    print("shapes start = ", self.shapes[0][0].start_x)
                                 break
 
                     elif self.shapes[i].intersect(x1, y1, x2, y2):
                         self.canvas.move(self.shapes[i].shape, dx, dy)
+
 
                 self.move_start_x = event.x
                 self.move_start_y = event.y
