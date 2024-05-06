@@ -808,6 +808,7 @@ class DrawingApp:
                 self.shapes[i].is_move = False
 
     def ungroup_selected(self):
+        self.reset_selected_color()
         self.ungroup_selected_button.config(bg='yellow')
         self.rect_button.config(bg='lightgrey')
         self.select_button.config(bg='lightgrey')
