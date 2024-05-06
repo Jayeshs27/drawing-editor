@@ -8,6 +8,7 @@ class Rectangle:
         self.start_y = start_y
         self.end_x = start_x
         self.end_y = start_y
+        self.is_move = False
         self.shape = self.canvas.create_rectangle(
             start_x, start_y, start_x, start_y, outline="black"
         )
@@ -74,6 +75,7 @@ class Line:
         self.start_y = start_y
         self.end_x = start_x
         self.end_y = start_y
+        self.is_move = False
         self.shape = self.canvas.create_line(
             start_x, start_y, start_x, start_y, fill="black"
         )
@@ -112,6 +114,7 @@ class DrawingApp:
         self.canvas.pack()
         self.selected_item = None
         self.shapes = []
+        self.first_move = False
         self.selection_rect = None
         self.toolbar = tk.Frame(master)
         self.toolbar.pack(side=tk.TOP, fill=tk.X)
@@ -287,6 +290,7 @@ class DrawingApp:
         if self.selection_rect:
             self.select_mode = False
             self.move_mode = True
+            self.first_move = True
 
     def delete_selected(self):
         temp_list = []
@@ -324,7 +328,7 @@ class DrawingApp:
                     if type(self.shapes[i]) == list:
                         flattened_list = list(flatten2(self.shapes[i]))
                         for j in range(len(flattened_list)):
-                            if flattened_list[j].intersect(x1, y1, x2, y2):
+                            if flattened_list[j].intersect(x1, y1, x2, y2) and (self.first_move or flattened_list[j].is_move):
                                 for elem in flattened_list:
                                     self.canvas.move(elem.shape, dx, dy)
                                     # elem.start_x = 20
@@ -335,21 +339,25 @@ class DrawingApp:
                                     elem.end_x += dx
                                     elem.start_y += dy
                                     elem.end_y += dy
-                                    
+                                    if self.first_move:
+                                        elem.is_move = True
 
                                     print("elem start = ", elem.start_x)
-                                    print("shapes start = ", self.shapes[0][0].start_x)
+                                    # print("shapes start = ", self.shapes[0][0].start_x)
                                 break
 
-                    elif self.shapes[i].intersect(x1, y1, x2, y2):
+                    elif self.shapes[i].intersect(x1, y1, x2, y2) and (self.first_move or self.shapes[i].is_move):
                         self.canvas.move(self.shapes[i].shape, dx, dy)
                         self.shapes[i].start_x += dx
                         self.shapes[i].end_x += dx
                         self.shapes[i].start_y += dy
                         self.shapes[i].end_y += dy
+                        if self.first_move:
+                            self.shapes[i].is_move = True
 
                         print("start_x = ", self.shapes[i].start_x)
                 
+                self.first_move = False
                 self.canvas.move(self.selection_rect, dx, dy)
 
                 self.move_start_x = event.x
@@ -373,6 +381,13 @@ class DrawingApp:
         self.move_start_x = None
         self.move_start_y = None
         self.move_mode = False
+        for i in range(len(self.shapes)):
+            if type(self.shapes[i]) == list:
+                flattened_list = list(flatten2(self.shapes[i]))
+                for j in range(len(flattened_list)):
+                    flattened_list[j].is_move = False
+            else:
+                self.shapes[i].is_move = False
 
     def ungroup_selected(self):
         if self.selection_rect:
