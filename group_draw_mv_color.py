@@ -27,10 +27,13 @@ class Rectangle:
         self.end_y = y2
         x1=self.start_x
         y1=self.start_y
+        self.radius=r
         points = (x1+r, y1, x1+r, y1, x2-r, y1, x2-r, y1, x2, y1, x2, y1+r, x2, y1+r, x2, y2-r, x2, y2-r, x2, y2, x2-r, y2, x2-r, y2, x1+r, y2, x1+r, y2, x1, y2, x1, y2-r, x1, y2-r, x1, y1+r, x1, y1+r, x1, y1)
         self.canvas.coords(self.shape, *points)
 
-    def update_color(self,color):
+    def update_color(self,color,flag):
+        if flag:
+            self.color=color
         self.canvas.itemconfigure(self.shape, fill="", outline=color)
 
     def get_coords(self):
@@ -75,14 +78,15 @@ def flatten_list(nested_list):
 
 
 class Line:
-    def __init__(self, canvas, start_x, start_y):
+    def __init__(self, canvas, start_x, start_y,color):
         self.canvas = canvas
         self.start_x = start_x
         self.start_y = start_y
         self.end_x = start_x
         self.end_y = start_y
+        self.color=color
         self.shape = self.canvas.create_line(
-            start_x, start_y, start_x, start_y, fill="black"
+            start_x, start_y, start_x, start_y, fill=color
         )
 
     def update(self, end_x, end_y):
@@ -92,7 +96,9 @@ class Line:
             self.shape, self.start_x, self.start_y, self.end_x, self.end_y
         )
 
-    def update_color(self,color):
+    def update_color(self,color,flag):
+        if flag:
+            self.color=color
         self.canvas.itemconfigure(self.shape, fill=color)
 
     def intersect(self, x1, y1, x2, y2):
@@ -265,6 +271,7 @@ class DrawingApp:
     def activate_draw_mode(self):
         self.select_mode = False
         if self.selection_rect:
+            self.reset_selected_color()
             self.canvas.delete(self.selection_rect)
             self.selection_rect = None
 
@@ -293,12 +300,13 @@ class DrawingApp:
             elif self.selected_item == Line:
                 self.start_x = event.x
                 self.start_y = event.y
-                shape = Line(self.canvas, event.x, event.y)
+                shape = Line(self.canvas, event.x, event.y,self.color)
                 self.shapes.append(shape)
 
     def draw(self, event):
         if self.select_mode:
             if self.selection_rect:
+                self.reset_selected_color()
                 self.canvas.delete(self.selection_rect)
             self.selection_rect = self.canvas.create_rectangle(
                 self.start_x,
@@ -313,10 +321,29 @@ class DrawingApp:
         else:
             if self.selected_item == Rectangle or self.selected_item == Line:
                 if self.selection_rect:
+                    self.reset_selected_color()
                     self.canvas.delete(self.selection_rect)
                 self.selection_rect = None
                 self.shapes[-1].update(event.x, event.y)
 
+    def reset_selected_color(self):
+        if self.selection_rect:
+            x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
+            for i in range(len(self.shapes)):
+                if type(self.shapes[i]) == list:
+                    flattened_list = flatten_list(self.shapes[i])
+                    for j in range(len(flattened_list)):
+                        if flattened_list[j].intersect(x1, y1, x2, y2):
+                            for elem in flattened_list:
+                                # self.canvas.addtag_withtag('selected-object',elem.shape)
+                                elem.update_color(elem.color,0)
+                            break
+
+                elif self.shapes[i].intersect(x1, y1, x2, y2):
+                    # self.canvas.addtag_withtag('selected-object', self.shapes[i].shape)
+                    self.shapes[i].update_color(self.shapes[i].color,0)
+            
+            # self.canvas.addtag_withtag('selected-object',self.selection_rect)
     def end_draw(self, event):
         if self.select_mode:
             x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
@@ -326,11 +353,13 @@ class DrawingApp:
                     for j in range(len(flattened_list)):
                         if flattened_list[j].intersect(x1, y1, x2, y2):
                             for elem in flattened_list:
-                                 self.canvas.addtag_withtag('selected-object',elem.shape)
+                                self.canvas.addtag_withtag('selected-object',elem.shape)
+                                elem.update_color("cyan",0)
                             break
 
                 elif self.shapes[i].intersect(x1, y1, x2, y2):
                     self.canvas.addtag_withtag('selected-object', self.shapes[i].shape)
+                    self.shapes[i].update_color("cyan",0)
             
             self.canvas.addtag_withtag('selected-object',self.selection_rect)
 
@@ -408,6 +437,7 @@ class DrawingApp:
 
             
             if count!=1:
+                self.reset_selected_color()
                 self.canvas.delete(self.selection_rect)
                 self.selection_rect = None
                 return
@@ -473,7 +503,8 @@ class DrawingApp:
                     if self.shapes[i].intersect(x1, y1, x2, y2):
                         if isinstance(self.shapes[i],Rectangle):
                             self.shapes[i].update_radius(self.shapes[i].end_x,self.shapes[i].end_y,int(radius))
-                        self.shapes[i].update_color(color)  
+                        self.shapes[i].update_color(color,1)  
+            self.reset_selected_color()
             self.canvas.delete(self.selection_rect)
             self.selection_rect = None
     
@@ -623,6 +654,7 @@ class DrawingApp:
             elif self.shapes[i].intersect(x1, y1, x2, y2):
                 self.canvas.dtag('selected-object', self.shapes[i].shape)
         self.canvas.dtag('selected-object',self.selection_rect)
+        self.reset_selected_color()
         self.canvas.delete(self.selection_rect)
         self.move_start_x = None
         self.move_start_y = None
