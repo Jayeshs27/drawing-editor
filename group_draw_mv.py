@@ -238,21 +238,19 @@ class DrawingApp:
                 self.shapes[-1].update(event.x, event.y)
 
     def end_draw(self, event):
-        # if self.select_mode:
-        #     x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
-        #     for i in range(len(self.shapes)):
-        #         if type(self.shapes[i]) == list:
-        #             flattened_list = flatten_list(self.shapes[i])
-        #             for j in range(len(flattened_list)):
-        #                 if flattened_list[j].intersect(x1, y1, x2, y2):
-        #                     for elem in flattened_list:
-        #                          self.canvas.addtag_withtag('selected-object',elem.shape)
-        #                     break
+        if self.select_mode:
+            x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
+            for i in range(len(self.shapes)):
+                if type(self.shapes[i]) == list:
+                    flattened_list = flatten_list(self.shapes[i])
+                    for j in range(len(flattened_list)):
+                        if flattened_list[j].intersect(x1, y1, x2, y2):
+                            return
 
-        #         elif self.shapes[i].intersect(x1, y1, x2, y2):
-        #             self.canvas.addtag_withtag('selected-object', self.shapes[i].shape)
+                elif self.shapes[i].intersect(x1, y1, x2, y2):
+                    return
             
-        #     self.canvas.addtag_withtag('selected-object',self.selection_rect)
+            self.canvas.delete(self.selection_rect)
 
         if self.move_mode:
             self.end_move(event)
@@ -329,10 +327,15 @@ class DrawingApp:
                             if flattened_list[j].intersect(x1, y1, x2, y2):
                                 for elem in flattened_list:
                                     self.canvas.move(elem.shape, dx, dy)
-                                    elem.start_x = 20
-                                    elem.end_x = 150
-                                    elem.start_y = 20
-                                    elem.end_y = 150
+                                    # elem.start_x = 20
+                                    # elem.end_x = 150
+                                    # elem.start_y = 20
+                                    # elem.end_y = 150
+                                    elem.start_x += dx
+                                    elem.end_x += dx
+                                    elem.start_y += dy
+                                    elem.end_y += dy
+                                    
 
                                     print("elem start = ", elem.start_x)
                                     print("shapes start = ", self.shapes[0][0].start_x)
@@ -340,7 +343,14 @@ class DrawingApp:
 
                     elif self.shapes[i].intersect(x1, y1, x2, y2):
                         self.canvas.move(self.shapes[i].shape, dx, dy)
+                        self.shapes[i].start_x += dx
+                        self.shapes[i].end_x += dx
+                        self.shapes[i].start_y += dy
+                        self.shapes[i].end_y += dy
 
+                        print("start_x = ", self.shapes[i].start_x)
+                
+                self.canvas.move(self.selection_rect, dx, dy)
 
                 self.move_start_x = event.x
                 self.move_start_y = event.y
