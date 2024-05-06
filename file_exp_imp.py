@@ -1,24 +1,6 @@
 import xml.etree.ElementTree as ET
 
 
-class Rectangle:
-    def __init__(
-        self, start_x, start_y, end_x, end_y, color, r
-    ):
-        self.start_x = start_x
-        self.start_y = start_y
-        self.end_x = end_x
-        self.end_y = end_y
-        self.color = color
-        self.radius = r
-class Line:
-    def __init__(self, start_x, start_y, end_x, end_y, color):
-        self.start_x = start_x
-        self.start_y = start_y
-        self.end_x = end_x
-        self.end_y = end_y
-        self.color = color
-
 class FileIOManager:
     def __init__(self, file_name):
         self.file_name = file_name
@@ -62,22 +44,25 @@ class ASCIIFileIOManager(FileIOManager):
         return shapes_list
 
     def write_shapes_to_file(self, shapes_list):
-        with open(self.file_name, "w") as file:
-            self._write_shapes_to_file(shapes_list, file)
+        str=""
+        retstr= self._write_shapes_to_file(shapes_list, str)
+        # print("hi",retstr)
+        return(retstr)
 
     @staticmethod
-    def _write_shapes_to_file(shapes_list, file):
+    def _write_shapes_to_file(shapes_list, str):
         name_color = lambda color_name: {v: k for k, v in {'k': 'black', 'r': 'red', 'g': 'green', 'b': 'blue'}.items()}.get(color_name, 'unknown')
         for shape in shapes_list:
             if isinstance(shape, list):
-                file.write("start\n")
-                ASCIIFileIOManager._write_shapes_to_file(shape, file)
-                file.write("end\n")
+                str=str+"start\n"
+                ASCIIFileIOManager._write_shapes_to_file(shape, str)
+                str+="end\n"
             else:
                 if isinstance(shape, Line):
-                    file.write(f"line {shape.start_x} {shape.start_y} {shape.end_x} {shape.end_y} {name_color(shape.color)}\n")
+                    str+=f"line {shape.start_x} {shape.start_y} {shape.end_x} {shape.end_y} {name_color(shape.color)}\n"
                 elif isinstance(shape, Rectangle):
-                    file.write(f"rect {shape.start_x} {shape.start_y} {shape.end_x} {shape.end_y} {name_color(shape.color)} {'s' if shape.radius==0 else 'r'}\n")
+                    str+=f"rect {shape.start_x} {shape.start_y} {shape.end_x} {shape.end_y} {name_color(shape.color)} {'s' if shape.radius==0 else 'r'}\n"
+        return str
 
 class XMLFileIOManager(FileIOManager):
     def __init__(self, file_name):
@@ -122,87 +107,88 @@ class XMLFileIOManager(FileIOManager):
         return shapes_list
 
     def write_shapes_to_file(self, shapes_list):
-        print(self.file_name)
-        print(shapes_list[0].start_x)
-        with open(self.file_name, "w") as file:
-            self._write_shapes_to_xml(shapes_list, file)
+        # print(self.file_name)
+        # print(shapes_list[0].start_x)
+        str=""
+        return self._write_shapes_to_xml(shapes_list, str)
 
     @staticmethod
-    def _write_shapes_to_xml(shapes_list, file, indent=0):
-        def write_indent():
-            file.write("\t" * indent)
+    def _write_shapes_to_xml(shapes_list, str, indent=0):
+        def write_indent(str):
+            str+="\t" * indent
 
         for shape in shapes_list:
-            write_indent()
+            write_indent(str)
             if isinstance(shape, Line):
-                file.write("<line>\n")
-                write_indent()
-                file.write("\t<begin>\n")
-                write_indent()
-                file.write(f"\t\t<x>{shape.start_x}</x>\n")
-                write_indent()
-                file.write(f"\t\t<y>{shape.start_y}</y>\n")
-                write_indent()
-                file.write("\t</begin>\n")
-                write_indent()
-                file.write("\t<end>\n")
-                write_indent()
-                file.write(f"\t\t<x>{shape.end_x}</x>\n")
-                write_indent()
-                file.write(f"\t\t<y>{shape.end_y}</y>\n")
-                write_indent()
-                file.write("\t</end>\n")
-                write_indent()
-                file.write(f"\t<color>{shape.color}</color>\n")
-                write_indent()
-                file.write("</line>\n")
+                str+="<line>\n"
+                write_indent(str)
+                str+="\t<begin>\n"
+                write_indent(str)
+                str+=f"\t\t<x>{shape.start_x}</x>\n"
+                write_indent(str)
+                str+=f"\t\t<y>{shape.start_y}</y>\n"
+                write_indent(str)
+                str+="\t</begin>\n"
+                write_indent(str)
+                str+="\t<end>\n"
+                write_indent(str)
+                str+=f"\t\t<x>{shape.end_x}</x>\n"
+                write_indent(str)
+                str+=f"\t\t<y>{shape.end_y}</y>\n"
+                write_indent(str)
+                str+="\t</end>\n"
+                write_indent(str)
+                str+=f"\t<color>{shape.color}</color>\n"
+                write_indent(str)
+                str+="</line>\n"
             elif isinstance(shape, Rectangle):
-                file.write("<rectangle>\n")
-                write_indent()
-                file.write("\t<upper-left>\n")
-                write_indent()
-                file.write(f"\t\t<x>{shape.start_x}</x>\n")
-                write_indent()
-                file.write(f"\t\t<y>{shape.start_y}</y>\n")
-                write_indent()
-                file.write("\t</upper-left>\n")
-                write_indent()
-                file.write("\t<lower-right>\n")
-                write_indent()
-                file.write(f"\t\t<x>{shape.end_x}</x>\n")
-                write_indent()
-                file.write(f"\t\t<y>{shape.end_y}</y>\n")
-                write_indent()
-                file.write("\t</lower-right>\n")
-                write_indent()
-                file.write(f"\t<color>{shape.color}</color>\n")
-                write_indent()
-                file.write(f"\t<corner>{'square' if shape.radius==0 else 'rounded'}</corner>\n")
-                write_indent()
-                file.write("</rectangle>\n")
+                str+="<rectangle>\n"
+                write_indent(str)
+                str+="\t<upper-left>\n"
+                write_indent(str)
+                str+=f"\t\t<x>{shape.start_x}</x>\n"
+                write_indent(str)
+                str+=f"\t\t<y>{shape.start_y}</y>\n"
+                write_indent(str)
+                str+="\t</upper-left>\n"
+                write_indent(str)
+                str+="\t<lower-right>\n"
+                write_indent(str)
+                str+=f"\t\t<x>{shape.end_x}</x>\n"
+                write_indent(str)
+                str+=f"\t\t<y>{shape.end_y}</y>\n"
+                write_indent(str)
+                str+="\t</lower-right>\n"
+                write_indent(str)
+                str+=f"\t<color>{shape.color}</color>\n"
+                write_indent(str)
+                str+=f"\t<corner>{'square' if shape.radius==0 else 'rounded'}</corner>\n"
+                write_indent(str)
+                str+="</rectangle>\n"
             elif isinstance(shape, list):
-                write_indent()
-                file.write("<group>\n")
-                XMLFileIOManager._write_shapes_to_xml(shape, file, indent + 1)
-                write_indent()
-                file.write("</group>\n")
-shapes_list = [
-    Line(10, 10, 50, 50, "blue"),
-    Rectangle(20, 20, 80, 80, "red", 25),
-    [Line(30, 30, 70, 70, "green"), Rectangle(40, 40, 90, 90, "blue", 0)]
-]
-new_xml_manager = XMLFileIOManager("shapes_info.xml")
-new_xml_manager.write_shapes_to_file(shapes_list)
-
-# xml_manager = XMLFileIOManager("shapes_info.xml")
-# shapes_list = xml_manager.read_shapes_from_file()
-# new_xml_manager = XMLFileIOManager("new.xml")
+                write_indent(str)
+                str+="<group>\n"
+                XMLFileIOManager._write_shapes_to_xml(shape, str, indent + 1)
+                write_indent(str)
+                str+="</group>\n"
+        return str
+# shapes_list = [
+#     Line(10, 10, 50, 50, "blue"),
+#     Rectangle(20, 20, 80, 80, "red", 25),
+#     [Line(30, 30, 70, 70, "green"), Rectangle(40, 40, 90, 90, "blue", 0)]
+# ]
+# new_xml_manager = XMLFileIOManager("shapes_info.xml")
 # new_xml_manager.write_shapes_to_file(shapes_list)
 
-new_ascii_manager = ASCIIFileIOManager("shapes_info.txt")
-new_ascii_manager.write_shapes_to_file(shapes_list)
+# # xml_manager = XMLFileIOManager("shapes_info.xml")
+# # shapes_list = xml_manager.read_shapes_from_file()
+# # new_xml_manager = XMLFileIOManager("new.xml")
+# # new_xml_manager.write_shapes_to_file(shapes_list)
 
-# ascii_manager = ASCIIFileIOManager("shapes_info.txt")
-# shapes_list = ascii_manager.read_shapes_from_file()
-# new_ascii_manager = ASCIIFileIOManager("new.txt")
+# new_ascii_manager = ASCIIFileIOManager("shapes_info.txt")
 # new_ascii_manager.write_shapes_to_file(shapes_list)
+
+# # ascii_manager = ASCIIFileIOManager("shapes_info.txt")
+# # shapes_list = ascii_manager.read_shapes_from_file()
+# # new_ascii_manager = ASCIIFileIOManager("new.txt")
+# # new_ascii_manager.write_shapes_to_file(shapes_list)
