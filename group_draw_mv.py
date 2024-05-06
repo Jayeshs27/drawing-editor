@@ -1,6 +1,5 @@
 import tkinter as tk
 
-
 class Rectangle:
     def __init__(self, canvas, start_x, start_y):
         self.canvas = canvas
@@ -23,28 +22,27 @@ class Rectangle:
     def get_coords(self):
         return self.start_x, self.start_y, self.end_x, self.end_y
 
-    # def intersect(self, x1, y1, x2, y2):
-    #     return (
-    #         y1 <= self.start_y <= y2
-    #         or y2 <= self.start_y <= y1
-    #         or y1 <= self.end_x <= y2
-    #         or y2 <= self.end_x <= y2
-    #         or x1 <= self.start_x <= x2
-    #         or x2 <= self.start_x <= x1
-    #         or x1 <= self.end_x <= x2
-    #         or x2 <= self.end_x <= x1
-    #     )
-
     def intersect(self, x1, y1, x2, y2):
         rect_x1, rect_y1, rect_x2, rect_y2 = self.get_coords()
 
         return not (
             x2 < rect_x1 or x1 > rect_x2 or y2 < rect_y1 or y1 > rect_y2
-        ) and not ((min(self.start_x,self.end_x) < x1 < max(self.start_x,self.end_x)) and
-                   (min(self.start_x,self.end_x) < x2 < max(self.start_x,self.end_x)) and 
-                   (min(self.start_y,self.end_y) < y1 < max(self.start_y,self.end_y)) and
-                   (min(self.start_y,self.end_y) < y2 < max(self.start_y,self.end_y))
-                   ) 
+        ) and not (
+            (min(self.start_x, self.end_x) < x1 < max(self.start_x, self.end_x))
+            and (min(self.start_x, self.end_x) < x2 < max(self.start_x, self.end_x))
+            and (min(self.start_y, self.end_y) < y1 < max(self.start_y, self.end_y))
+            and (min(self.start_y, self.end_y) < y2 < max(self.start_y, self.end_y))
+        )
+    
+    def deepcope(self):
+        copied_rect = Rectangle(self.canvas, self.start_x, self.start_y)
+        copied_rect.end_x = self.end_x
+        copied_rect.end_y = self.end_y
+        copied_rect.is_move = self.is_move
+        copied_rect.shape = self.canvas.create_rectangle(
+            self.start_x, self.start_y, self.end_x, self.end_y
+        )
+        return copied_rect
 
 
 def line_equation(x, y, slope, x1, y1):
@@ -59,6 +57,7 @@ def flatten_list(nested_list):
         else:
             flat_list.append(item)
     return flat_list
+
 
 def flatten2(nested_list):
     for element in nested_list:
@@ -90,21 +89,34 @@ class Line:
     def intersect(self, x1, y1, x2, y2):
         if (self.end_x - self.start_x) != 0:
             slope = (self.end_y - self.start_y) / (self.end_x - self.start_x)
-            # y_int1 = slope * (x1 - self.start_x) + self.start_y
-            # y_int2 = slope * (x2 - self.start_x) + self.start_y
-            # x_int1 = (y1 - self.start_y) / slope + self.start_x
-            # x_int2 = (y2 - self.start_y) / slope + self.start_x
+
             a1 = line_equation(x1, y1, slope, self.start_x, self.start_y)
             a2 = line_equation(x1, y2, slope, self.start_x, self.start_y)
             a3 = line_equation(x2, y2, slope, self.start_x, self.start_y)
             a4 = line_equation(x2, y1, slope, self.start_x, self.start_y)
-            # return x1 <= x_int1 <= x2 or x1 <= x_int2 <= x2 or y1 <= y_int1 <= y2 or y1 <= y_int2 <= y2
+            if (
+                max(y1, y2) < min(self.start_y, self.end_y)
+                or min(y1, y2) > max(self.start_y, self.end_y)
+                or max(x1, x2) < min(self.start_x, self.end_x)
+                or min(x1, x2) > max(self.start_x, self.end_x)
+            ):
+                return False
             return not (
                 (a1 >= 0 and a2 >= 0 and a3 >= 0 and a4 >= 0)
                 or (a1 < 0 and a2 < 0 and a3 < 0 and a4 < 0)
             )
         else:
             return x1 <= self.start_x <= x2 or x1 >= self.start_x >= x2
+    
+    def deepcope(self):
+        copied_line = Line(self.canvas, self.start_x, self.start_y)
+        copied_line.end_x = self.end_x
+        copied_line.end_y = self.end_y
+        copied_line.is_move = self.is_move
+        copied_line.shape = self.canvas.create_line(
+            self.start_x, self.start_y, self.end_x, self.end_y, fill="black"
+        )
+        return copied_line
 
 
 class DrawingApp:
@@ -130,7 +142,7 @@ class DrawingApp:
         self.select_button.pack(side=tk.LEFT)
 
         self.select_button = tk.Button(
-            self.toolbar, text="Copy", command=self.activate_move_mode
+            self.toolbar, text="Copy", command=self.activate_copy_mode
         )
         self.select_button.pack(side=tk.LEFT)
 
@@ -157,11 +169,6 @@ class DrawingApp:
         )
         self.group_button.pack(side=tk.LEFT)
 
-        # self.group_button = tk.Button(
-        #     self.toolbar, text="Ungroup Selected", command=self.ungroup_selected
-        # )
-        # self.group_button.pack(side=tk.LEFT)
-
         self.ungroup_all_button = tk.Button(
             self.toolbar, text="Ungroup All", command=self.ungroup_all
         )
@@ -169,8 +176,8 @@ class DrawingApp:
 
         self.select_mode = False
 
-        # move mode attributes
-        self.move_mode = False  
+        self.move_mode = False
+        self.copy_mode = False
         self.move_start_x = None
         self.move_start_y = None
 
@@ -193,7 +200,6 @@ class DrawingApp:
         self.select_mode = True
         self.selection_rect = None
 
-
     def activate_draw_mode(self):
         self.select_mode = False
         if self.selection_rect:
@@ -204,7 +210,7 @@ class DrawingApp:
         if self.select_mode:
             self.start_x = event.x
             self.start_y = event.y
-        elif self.move_mode:
+        elif self.move_mode or self.copy_mode:
             self.move_start_x = event.x
             self.move_start_y = event.y
         else:
@@ -233,6 +239,8 @@ class DrawingApp:
             )
         elif self.move_mode:
             self.move_selected(event)
+        elif self.copy_mode:
+            self.copy_selected(event)
         else:
             if self.selected_item == Rectangle or self.selected_item == Line:
                 if self.selection_rect:
@@ -252,13 +260,14 @@ class DrawingApp:
 
                 elif self.shapes[i].intersect(x1, y1, x2, y2):
                     return
-            
+
             self.canvas.delete(self.selection_rect)
 
         if self.move_mode:
             self.end_move(event)
-        
 
+        if self.copy_mode:
+            self.end_copy(event)
 
     def group_selected(self):
         group_list = []
@@ -292,6 +301,12 @@ class DrawingApp:
             self.move_mode = True
             self.first_move = True
 
+    def activate_copy_mode(self):
+        if self.selection_rect:
+            self.select_mode = False
+            self.copy_mode = True
+            self.first_move = True
+
     def delete_selected(self):
         temp_list = []
         if self.selection_rect:
@@ -314,7 +329,6 @@ class DrawingApp:
                 self.shapes.pop(temp_list[i])
                 for j in range(i + 1, len(temp_list)):
                     temp_list[j] -= 1
-        # self.canvas.delete('selected-object')
         self.activate_draw_mode()
 
     def move_selected(self, event):
@@ -323,30 +337,26 @@ class DrawingApp:
                 x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
                 dx = event.x - self.move_start_x
                 dy = event.y - self.move_start_y
-                # self.canvas.move('selected-object', dx, dy)
                 for i in range(len(self.shapes)):
                     if type(self.shapes[i]) == list:
                         flattened_list = list(flatten2(self.shapes[i]))
                         for j in range(len(flattened_list)):
-                            if flattened_list[j].intersect(x1, y1, x2, y2) and (self.first_move or flattened_list[j].is_move):
+                            if flattened_list[j].intersect(x1, y1, x2, y2) and (
+                                self.first_move or flattened_list[j].is_move
+                            ):
                                 for elem in flattened_list:
                                     self.canvas.move(elem.shape, dx, dy)
-                                    # elem.start_x = 20
-                                    # elem.end_x = 150
-                                    # elem.start_y = 20
-                                    # elem.end_y = 150
                                     elem.start_x += dx
                                     elem.end_x += dx
                                     elem.start_y += dy
                                     elem.end_y += dy
                                     if self.first_move:
                                         elem.is_move = True
-
-                                    print("elem start = ", elem.start_x)
-                                    # print("shapes start = ", self.shapes[0][0].start_x)
                                 break
 
-                    elif self.shapes[i].intersect(x1, y1, x2, y2) and (self.first_move or self.shapes[i].is_move):
+                    elif self.shapes[i].intersect(x1, y1, x2, y2) and (
+                        self.first_move or self.shapes[i].is_move
+                    ):
                         self.canvas.move(self.shapes[i].shape, dx, dy)
                         self.shapes[i].start_x += dx
                         self.shapes[i].end_x += dx
@@ -355,28 +365,74 @@ class DrawingApp:
                         if self.first_move:
                             self.shapes[i].is_move = True
 
-                        print("start_x = ", self.shapes[i].start_x)
-                
                 self.first_move = False
                 self.canvas.move(self.selection_rect, dx, dy)
 
                 self.move_start_x = event.x
                 self.move_start_y = event.y
 
-    def end_move(self, event):
-        # x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
-        # for i in range(len(self.shapes)):
-        #     if type(self.shapes[i]) == list:
-        #         flattened_list = flatten_list(self.shapes[i])
-        #         for j in range(len(flattened_list)):
-        #             if flattened_list[j].intersect(x1, y1, x2, y2):
-        #                 for elem in flattened_list:
-        #                         self.canvas.dtag('selected-object',elem.shape)
-        #                 break
+    def copy_selected(self, event):
+        if self.copy_mode:
+            if self.selection_rect:
+                x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
+                dx = event.x - self.move_start_x
+                dy = event.y - self.move_start_y
+                for i in range(len(self.shapes)):
+                    if type(self.shapes[i]) == list:
+                        flattened_list = list(flatten2(self.shapes[i]))
+                        for j in range(len(flattened_list)):
+                            if flattened_list[j].intersect(x1, y1, x2, y2) and (
+                                self.first_move or flattened_list[j].is_move
+                            ):
+                                for ele_cop in flattened_list:
+                                    if self.first_move:
+                                        copied = ele_cop.deepcope()
+                                        self.shapes.append(copied)
+                                        self.shapes[-1].is_move = False
+                                for elem in flattened_list:
+                                    self.canvas.move(elem.shape, dx, dy)
+                                    elem.start_x += dx
+                                    elem.end_x += dx
+                                    elem.start_y += dy
+                                    elem.end_y += dy
+                                    if self.first_move:
+                                        elem.is_move = True
+                                break
 
-        #     elif self.shapes[i].intersect(x1, y1, x2, y2):
-        #         self.canvas.dtag('selected-object', self.shapes[i].shape)
-        # self.canvas.dtag('selected-object',self.selection_rect)
+                    elif self.shapes[i].intersect(x1, y1, x2, y2) and (
+                        self.first_move or self.shapes[i].is_move
+                    ):
+                        if self.first_move:
+                            copied = self.shapes[i].deepcope()
+                            self.shapes.append(copied)
+                            self.shapes[-1].is_move = False
+                        self.canvas.move(self.shapes[i].shape, dx, dy)
+                        self.shapes[i].start_x += dx
+                        self.shapes[i].end_x += dx
+                        self.shapes[i].start_y += dy
+                        self.shapes[i].end_y += dy
+                        if self.first_move:
+                            self.shapes[i].is_move = True
+
+                self.first_move = False
+                self.canvas.move(self.selection_rect, dx, dy)
+                self.move_start_x = event.x
+                self.move_start_y = event.y
+
+    def end_move(self, event):
+        self.canvas.delete(self.selection_rect)
+        self.move_start_x = None
+        self.move_start_y = None
+        self.move_mode = False
+        for i in range(len(self.shapes)):
+            if type(self.shapes[i]) == list:
+                flattened_list = list(flatten2(self.shapes[i]))
+                for j in range(len(flattened_list)):
+                    flattened_list[j].is_move = False
+            else:
+                self.shapes[i].is_move = False
+
+    def end_copy(self, event):
         self.canvas.delete(self.selection_rect)
         self.move_start_x = None
         self.move_start_y = None
@@ -407,25 +463,6 @@ class DrawingApp:
         self.activate_draw_mode()
 
     def ungroup_all(self):
-        # temp_list = []
-        # # if self.selection_rect:
-        #     # x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
-        # for i in range(len(self.shapes)):
-        #     if type(self.shapes[i]) == list:
-        #         flattened_list = flatten_list(self.shapes[i]) 
-        #         for ungroup in range(len(flattened_list)):
-        #             # if self.shapes[i][j].intersect(x1, y1, x2, y2):
-        #             self.shapes.append(flattened_list[ungroup])
-        #         temp_list.append(i)      
-        
-        #     # elif self.shapes[i].intersect(x1, y1, x2, y2):
-        #     #     self.shapes.append(self.shapes[i])
-        #     #     temp_list.append(i)
-
-        # for i in list(range(len(temp_list))):
-        #     self.shapes.pop(temp_list[i])
-        #     for j in range(i + 1, len(temp_list)):
-        #         temp_list[j] -= 1
         self.shapes = flatten_list(self.shapes)
         self.activate_draw_mode()
         print(self.shapes)
