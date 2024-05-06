@@ -859,3 +859,105 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+    def open_dialog(self):
+        self.edit_button.config(bg='yellow')
+        self.rect_button.config(bg='lightgrey')
+        self.select_button.config(bg='lightgrey')
+        self.line_button.config(bg='lightgrey')
+        self.move_button.config(bg='lightgrey')
+        self.copy_button.config(bg='lightgrey')
+        self.delete_button.config(bg='lightgrey')
+        self.group_button.config(bg='lightgrey')
+        self.ungroup_selected_button.config(bg='lightgrey')
+        self.ungroup_all_button.config(bg='lightgrey')
+        if self.selection_rect:
+            x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
+            count=0
+            for shape in self.shapes:
+                if type(shape)!=list:
+                    if shape.intersect(x1, y1, x2, y2):
+                        count+=1
+                        temp_shape=shape
+                        if count==2:
+                            break
+                else:
+                    flattened_list = flatten_list(shape)
+                    for j in range(len(flattened_list)):
+                        if flattened_list[j].intersect(x1, y1, x2, y2):
+                            count=2
+                    if count==2:
+                        break
+                
+ 
+
+            
+            if count!=1:
+                self.reset_selected_color()
+                self.canvas.delete(self.selection_rect)
+                self.selection_rect = None
+                return
+            
+            dialog = tk.Toplevel(self.master)
+            dialog.title("Input Dialog")
+            # Entry for inputting text
+            # tk.Label(dialog, text="Color:").grid(row=0, column=0)
+            # color_entry = tk.Entry(dialog)
+            # color_entry.grid(row=0, column=1)
+            # red_button_border = tk.Frame(dialog, highlightbackground = "black",  highlightthickness = 2, bd=0)
+            if temp_shape.color=='red':
+                self.edit_color='red'
+                self.red_edit_button=tk.Button(dialog,fg='red',bg='red',bd=5, text="", command=self.set_edit_color_red)
+            else:
+                self.red_edit_button=tk.Button(dialog,fg='red',bg='red',bd=0, text="", command=self.set_edit_color_red)
+            self.red_edit_button.pack(side=tk.TOP)
+            
+            if temp_shape.color=='green':
+                self.edit_color='green'
+                self.green_edit_button=tk.Button(dialog,fg='green',bg='green',bd=5, text="", command=self.set_edit_color_green)
+            else:
+                self.green_edit_button=tk.Button(dialog,fg='green',bg='green',bd=0, text="", command=self.set_edit_color_green)
+            self.green_edit_button.pack(side=tk.TOP)
+
+            if temp_shape.color=='blue':
+                self.edit_color='blue'
+                self.blue_edit_button=tk.Button(dialog,fg='blue',bg='blue',bd=5, text="", command=self.set_edit_color_blue)
+            else:
+                self.blue_edit_button=tk.Button(dialog,fg='blue',bg='blue',bd=0, text="", command=self.set_edit_color_blue)
+            self.blue_edit_button.pack(side=tk.TOP)
+
+            if temp_shape.color=='black':
+                self.edit_color='black'
+                self.black_edit_button=tk.Button(dialog,fg='black',bg='black',bd=5, text="", command=self.set_edit_color_black)
+            else:
+                self.black_edit_button=tk.Button(dialog,fg='black',bg='black',bd=0, text="", command=self.set_edit_color_black)
+            self.black_edit_button.pack(side=tk.TOP)
+            
+            
+            if isinstance(temp_shape,Rectangle):
+                # # Scale widget for selecting a numerical value
+                # tk.Label(dialog, text="Radius:").grid(row=2, column=0)
+                # radius_scale = tk.Scale(dialog, from_=0, to=50, orient=tk.HORIZONTAL)
+                # radius_scale.grid(row=2, column=1)
+                # rounded_button=tk.Button(dialog, text="ROUNDED", command=self.set_edit_rounded)
+                # rounded_button.pack(side=tk.TOP)
+                self.edit_radio = tk.IntVar()     
+                self.edit_R1 = tk.Radiobutton(dialog, text="ROUNDED", variable=self.edit_radio, value=1,  command=self.set_edit_rounded)  
+                self.edit_R1.pack(side=tk.TOP)  
+                self.edit_R2 = tk.Radiobutton(dialog, text="UNROUNDED", variable=self.edit_radio, value=2,  command=self.set_edit_unrounded)  
+                self.edit_R2.pack(side=tk.TOP)
+                if temp_shape.radius==0:
+                    self.edit_radius=0
+                    self.edit_radio.set(2)
+                else:
+                    self.edit_radius=25
+                    self.edit_radio.set(1)
+            # Button to submit the inputs
+            if isinstance(temp_shape,Rectangle):
+                submit_button = tk.Button(dialog, text="Submit", command=lambda: self.edit_selected(self.edit_color,  self.edit_radius,dialog))
+            else:
+                submit_button = tk.Button(dialog, text="Submit", command=lambda: self.edit_selected(self.edit_color,  0,dialog))
+            # submit_button.grid(row=4, columnspan=2)
+            submit_button.pack(side=tk.TOP)

@@ -122,6 +122,8 @@ class XMLFileIOManager(FileIOManager):
         return shapes_list
 
     def write_shapes_to_file(self, shapes_list):
+        print(self.file_name)
+        print(shapes_list[0].start_x)
         with open(self.file_name, "w") as file:
             self._write_shapes_to_xml(shapes_list, file)
 

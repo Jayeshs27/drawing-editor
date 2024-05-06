@@ -95,8 +95,8 @@ class ControlCenter:
         self.export_btn = tk.Button(self.fileIO_frame, text='export to xml',width=12, height=1)
         self.export_btn.grid(row=1,column=0,padx=5,pady=5)
 
-        self.export_btn = tk.Button(self.fileIO_frame, text='import from xml',width=12, height=1)
-        self.export_btn.grid(row=2,column=0,padx=5,pady=5)
+        self.import_btn = tk.Button(self.fileIO_frame, text='import from xml',width=12, height=1)
+        self.import_btn.grid(row=2,column=0,padx=5,pady=5)
 
         self.canvas = tk.Canvas(self.canvas_frame, width=400, height=400, bg="white", highlightthickness=0)
         self.canvas.pack(fill=tk.BOTH, expand=True)

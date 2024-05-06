@@ -1,5 +1,6 @@
 import tkinter as tk
 from group_draw_ui import ControlCenter
+from file_exp_imp import FileIOManager,ASCIIFileIOManager,XMLFileIOManager
 
 class Rectangle:
     def __init__(self, canvas, x1, y1, x2, y2 ,color, r):
@@ -211,6 +212,9 @@ class DrawingApp:
         # self.controlcenter.R2.pack(side=tk.TOP)
         self.controlcenter.radio.set(2)
 
+        self.controlcenter.import_btn.configure(command=self.open_dialog2)
+        self.controlcenter.export_btn.configure(command=self.open_dialog3)
+
         self.select_mode = False
 
         self.move_mode = False
@@ -225,6 +229,8 @@ class DrawingApp:
     def draw_rectangle(self):
         self.selected_item = Rectangle
         self.controlcenter.rect_btn.config(bg='yellow')
+        self.controlcenter.import_btn.config(bg='lightgrey')
+        self.controlcenter.export_btn.config(bg='lightgrey')
         self.controlcenter.select_btn.config(bg='lightgrey')
         self.controlcenter.line_btn.config(bg='lightgrey')
         self.controlcenter.move_btn.config(bg='lightgrey')
@@ -239,6 +245,8 @@ class DrawingApp:
     def draw_line(self):
         self.selected_item = Line
         self.controlcenter.line_btn.config(bg='yellow')
+        self.controlcenter.import_btn.config(bg='lightgrey')
+        self.controlcenter.export_btn.config(bg='lightgrey')
         self.controlcenter.rect_btn.config(bg='lightgrey')
         self.controlcenter.select_btn.config(bg='lightgrey')
         self.controlcenter.move_btn.config(bg='lightgrey')
@@ -252,6 +260,8 @@ class DrawingApp:
 
     def activate_selection(self):
         self.controlcenter.select_btn.config(bg='yellow')
+        self.controlcenter.import_btn.config(bg='lightgrey')
+        self.controlcenter.export_btn.config(bg='lightgrey')
         self.controlcenter.rect_btn.config(bg='lightgrey')
         self.controlcenter.line_btn.config(bg='lightgrey')
         self.controlcenter.move_btn.config(bg='lightgrey')
@@ -375,8 +385,75 @@ class DrawingApp:
         elif self.copy_mode:
             self.end_copy(event)
 
+    def open_dialog2(self):
+        self.controlcenter.import_btn.config(bg='yellow')
+        self.controlcenter.export_btn.config(bg='lightgrey')
+        self.controlcenter.edit_btn.config(bg='lightgrey')
+        self.controlcenter.rect_btn.config(bg='lightgrey')
+        self.controlcenter.select_btn.config(bg='lightgrey')
+        self.controlcenter.line_btn.config(bg='lightgrey')
+        self.controlcenter.move_btn.config(bg='lightgrey')
+        self.controlcenter.copy_btn.config(bg='lightgrey')
+        self.controlcenter.delete_btn.config(bg='lightgrey')
+        self.controlcenter.group_btn.config(bg='lightgrey')
+        self.controlcenter.ungroup_btn.config(bg='lightgrey')
+        self.controlcenter.ungroup_all_btn.config(bg='lightgrey')
+        dialog=tk.Toplevel(self.canvas)
+        tk.Label(dialog,text='file path:').grid(row=0,column=0)
+        self.file_path=tk.Entry(dialog)
+        self.file_path.grid(row=0,column=1)
+        self.edit_type = tk.IntVar()     
+        self.edit_R11 = tk.Radiobutton(dialog, text=".xml", variable=self.edit_type, value=1,  command=self.set_edit_rounded)  
+        # self.edit_R11.pack(side=tk.TOP) 
+        self.edit_R11.grid(row=1,column=1) 
+        self.edit_R22 = tk.Radiobutton(dialog, text=".text", variable=self.edit_type, value=2,  command=self.set_edit_unrounded)  
+        # self.edit_R22.pack(side=tk.TOP)
+        self.edit_R22.grid(row=2,column=1)
+        submit_button = tk.Button(dialog, text="Submit", command=lambda: self.temp_func(self.file_path.get(), self.edit_type.get(),dialog))
+        submit_button.grid(row=4,column=1)
+
+    def open_dialog3(self):
+        self.controlcenter.export_btn.config(bg='yellow')
+        self.controlcenter.import_btn.config(bg='lightgrey')
+        self.controlcenter.edit_btn.config(bg='lightgrey')
+        self.controlcenter.rect_btn.config(bg='lightgrey')
+        self.controlcenter.select_btn.config(bg='lightgrey')
+        self.controlcenter.line_btn.config(bg='lightgrey')
+        self.controlcenter.move_btn.config(bg='lightgrey')
+        self.controlcenter.copy_btn.config(bg='lightgrey')
+        self.controlcenter.delete_btn.config(bg='lightgrey')
+        self.controlcenter.group_btn.config(bg='lightgrey')
+        self.controlcenter.ungroup_btn.config(bg='lightgrey')
+        self.controlcenter.ungroup_all_btn.config(bg='lightgrey')
+        dialog=tk.Toplevel(self.canvas)
+        tk.Label(dialog,text='file path:').grid(row=0,column=0)
+        self.file_path=tk.Entry(dialog)
+        self.file_path.grid(row=0,column=1)
+        self.edit_type = tk.IntVar()     
+        self.edit_R11 = tk.Radiobutton(dialog, text=".xml", variable=self.edit_type, value=1,  command=self.set_edit_rounded)  
+        # self.edit_R11.pack(side=tk.TOP) 
+        self.edit_R11.grid(row=1,column=1) 
+        self.edit_R22 = tk.Radiobutton(dialog, text=".text", variable=self.edit_type, value=2,  command=self.set_edit_unrounded)  
+        # self.edit_R22.pack(side=tk.TOP)
+        self.edit_R22.grid(row=2,column=1)
+        submit_button = tk.Button(dialog, text="Submit", command=lambda: self.temp_func2(self.file_path.get(), self.edit_type.get(),dialog))
+        submit_button.grid(row=4,column=1)
+
+    def temp_func(self,file_path,type,dialog):
+        dialog.destroy()
+        print(file_path)
+        print(type)
+    def temp_func2(self,file_path,type,dialog):
+        dialog.destroy()
+        print(file_path)
+        if type==2:
+            new_xml_manager = ASCIIFileIOManager(file_path+".txt")
+            new_xml_manager.write_shapes_to_file(self.shapes)
+
     def open_dialog(self):
         self.controlcenter.edit_btn.config(bg='yellow')
+        self.controlcenter.import_btn.config(bg='lightgrey')
+        self.controlcenter.export_btn.config(bg='lightgrey')
         self.controlcenter.rect_btn.config(bg='lightgrey')
         self.controlcenter.select_btn.config(bg='lightgrey')
         self.controlcenter.line_btn.config(bg='lightgrey')
@@ -548,6 +625,8 @@ class DrawingApp:
     
     def edit_selected(self,color, radius,dialog):
         dialog.destroy()
+        self.controlcenter.import_btn.config(bg='lightgrey')
+        self.controlcenter.export_btn.config(bg='lightgrey')
         self.controlcenter.edit_btn.config(bg='lightgrey')
         self.controlcenter.rect_btn.config(bg='lightgrey')
         self.controlcenter.select_btn.config(bg='lightgrey')
@@ -573,6 +652,8 @@ class DrawingApp:
 
     def group_selected(self):
         self.controlcenter.group_btn.config(bg='yellow')
+        self.controlcenter.import_btn.config(bg='lightgrey')
+        self.controlcenter.export_btn.config(bg='lightgrey')
         self.controlcenter.rect_btn.config(bg='lightgrey')
         self.controlcenter.select_btn.config(bg='lightgrey')
         self.controlcenter.line_btn.config(bg='lightgrey')
@@ -609,6 +690,8 @@ class DrawingApp:
 
     def activate_move_mode(self):
         self.controlcenter.move_btn.config(bg='yellow')
+        self.controlcenter.import_btn.config(bg='lightgrey')
+        self.controlcenter.export_btn.config(bg='lightgrey')
         self.controlcenter.rect_btn.config(bg='lightgrey')
         self.controlcenter.select_btn.config(bg='lightgrey')
         self.controlcenter.line_btn.config(bg='lightgrey')
@@ -625,6 +708,8 @@ class DrawingApp:
 
     def activate_copy_mode(self):
         self.controlcenter.copy_btn.config(bg='yellow')
+        self.controlcenter.import_btn.config(bg='lightgrey')
+        self.controlcenter.export_btn.config(bg='lightgrey')
         self.controlcenter.ungroup_all_btn.config(bg='lightgrey')
         self.controlcenter.rect_btn.config(bg='lightgrey')
         self.controlcenter.select_btn.config(bg='lightgrey')
@@ -641,6 +726,8 @@ class DrawingApp:
 
     def delete_selected(self):
         self.controlcenter.delete_btn.config(bg='yellow')
+        self.controlcenter.import_btn.config(bg='lightgrey')
+        self.controlcenter.export_btn.config(bg='lightgrey')
         self.controlcenter.rect_btn.config(bg='lightgrey')
         self.controlcenter.select_btn.config(bg='lightgrey')
         self.controlcenter.line_btn.config(bg='lightgrey')
@@ -795,6 +882,8 @@ class DrawingApp:
     def ungroup_selected(self):
         self.reset_selected_color()
         self.controlcenter.ungroup_btn.config(bg='yellow')
+        self.controlcenter.import_btn.config(bg='lightgrey')
+        self.controlcenter.export_btn.config(bg='lightgrey')
         self.controlcenter.rect_btn.config(bg='lightgrey')
         self.controlcenter.select_btn.config(bg='lightgrey')
         self.controlcenter.line_btn.config(bg='lightgrey')
@@ -822,6 +911,8 @@ class DrawingApp:
 
     def ungroup_all(self):
         self.controlcenter.ungroup_all_btn.config(bg='yellow')
+        self.controlcenter.import_btn.config(bg='lightgrey')
+        self.controlcenter.export_btn.config(bg='lightgrey')
         self.controlcenter.rect_btn.config(bg='lightgrey')
         self.controlcenter.select_btn.config(bg='lightgrey')
         self.controlcenter.line_btn.config(bg='lightgrey')
