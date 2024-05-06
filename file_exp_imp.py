@@ -3,14 +3,14 @@ import xml.etree.ElementTree as ET
 
 class Rectangle:
     def __init__(
-        self, start_x, start_y, end_x, end_y, color, is_rounded
+        self, start_x, start_y, end_x, end_y, color, r
     ):
         self.start_x = start_x
         self.start_y = start_y
         self.end_x = end_x
         self.end_y = end_y
         self.color = color
-        self.radius = 25 if is_rounded else 0
+        self.radius = r
 class Line:
     def __init__(self, start_x, start_y, end_x, end_y, color):
         self.start_x = start_x
@@ -41,7 +41,7 @@ class ASCIIFileIOManager(FileIOManager):
         if parts[0] == "line":
             return Line(int(parts[1]), int(parts[2]), int(parts[3]), int(parts[4]), name_color(parts[5]))
         elif parts[0] == "rect":
-            return Rectangle(int(parts[1]), int(parts[2]), int(parts[3]), int(parts[4]), name_color(parts[5]), parts[6]=='r')
+            return Rectangle(int(parts[1]), int(parts[2]), int(parts[3]), int(parts[4]), name_color(parts[5]), 0 if parts[6]=='r' else 25)
 
     def read_shapes_from_file(self):
         shapes_list = []
@@ -116,7 +116,7 @@ class XMLFileIOManager(FileIOManager):
                     int(lower_right.find("x").text),
                     int(lower_right.find("y").text),
                     child.find("color").text,
-                    child.find("corner").text=='rounded',
+                    0 if child.find("corner").text=='rounded' else 25,
                 )
                 shapes_list.append(rectangle)
         return shapes_list
@@ -184,13 +184,23 @@ class XMLFileIOManager(FileIOManager):
                 XMLFileIOManager._write_shapes_to_xml(shape, file, indent + 1)
                 write_indent()
                 file.write("</group>\n")
-
-xml_manager = XMLFileIOManager("shapes_info.xml")
-shapes_list = xml_manager.read_shapes_from_file()
-new_xml_manager = XMLFileIOManager("new.xml")
+shapes_list = [
+    Line(10, 10, 50, 50, "blue"),
+    Rectangle(20, 20, 80, 80, "red", 25),
+    [Line(30, 30, 70, 70, "green"), Rectangle(40, 40, 90, 90, "blue", 0)]
+]
+new_xml_manager = XMLFileIOManager("shapes_info.xml")
 new_xml_manager.write_shapes_to_file(shapes_list)
 
-ascii_manager = ASCIIFileIOManager("shapes_info.txt")
-shapes_list = ascii_manager.read_shapes_from_file()
-new_ascii_manager = ASCIIFileIOManager("new.txt")
+# xml_manager = XMLFileIOManager("shapes_info.xml")
+# shapes_list = xml_manager.read_shapes_from_file()
+# new_xml_manager = XMLFileIOManager("new.xml")
+# new_xml_manager.write_shapes_to_file(shapes_list)
+
+new_ascii_manager = ASCIIFileIOManager("shapes_info.txt")
 new_ascii_manager.write_shapes_to_file(shapes_list)
+
+# ascii_manager = ASCIIFileIOManager("shapes_info.txt")
+# shapes_list = ascii_manager.read_shapes_from_file()
+# new_ascii_manager = ASCIIFileIOManager("new.txt")
+# new_ascii_manager.write_shapes_to_file(shapes_list)
