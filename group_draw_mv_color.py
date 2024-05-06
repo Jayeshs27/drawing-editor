@@ -137,15 +137,15 @@ class DrawingApp:
         )
         self.select_button.pack(side=tk.LEFT)
 
-        self.select_button = tk.Button(
+        self.move_button = tk.Button(
             self.toolbar, text="Move", command=self.activate_move_mode
         )
-        self.select_button.pack(side=tk.LEFT)
+        self.move_button.pack(side=tk.LEFT)
 
-        self.select_button = tk.Button(
+        self.copy_button = tk.Button(
             self.toolbar, text="Copy", command=self.activate_move_mode
         )
-        self.select_button.pack(side=tk.LEFT)
+        self.copy_button.pack(side=tk.LEFT)
 
         self.rect_button = tk.Button(
             self.toolbar, text="Rectangle", command=self.draw_rectangle
@@ -165,10 +165,10 @@ class DrawingApp:
         )
         self.group_button.pack(side=tk.LEFT)
 
-        self.group_button = tk.Button(
+        self.ungroup_selected_button = tk.Button(
             self.toolbar, text="Ungroup Selected", command=self.ungroup_selected
         )
-        self.group_button.pack(side=tk.LEFT)
+        self.ungroup_selected_button.pack(side=tk.LEFT)
 
         # self.group_button = tk.Button(
         #     self.toolbar, text="Ungroup Selected", command=self.ungroup_selected
@@ -183,16 +183,16 @@ class DrawingApp:
         self.edit_button = tk.Button(self.toolbar, text="Edit", command=self.open_dialog)
         self.edit_button.pack(side=tk.LEFT)
 
-        self.red_button=tk.Button(self.toolbar,fg='red',bg='red', text="", command=self.set_color_red)
+        self.red_button=tk.Button(self.toolbar,fg='red',bg='red',bd=0, text="", command=self.set_color_red)
         self.red_button.pack(side=tk.TOP)
 
-        self.green_button=tk.Button(self.toolbar,fg='green',bg='green', text="", command=self.set_color_green)
+        self.green_button=tk.Button(self.toolbar,fg='green',bg='green',bd=0, text="", command=self.set_color_green)
         self.green_button.pack(side=tk.TOP)
 
-        self.blue_button=tk.Button(self.toolbar,fg='blue',bg='blue', text="", command=self.set_color_blue)
+        self.blue_button=tk.Button(self.toolbar,fg='blue',bg='blue',bd=0, text="", command=self.set_color_blue)
         self.blue_button.pack(side=tk.TOP)
 
-        self.black_button=tk.Button(self.toolbar,fg='black',bg='black', text="", command=self.set_color_black)
+        self.black_button=tk.Button(self.toolbar,fg='black',bg='black',bd=5, text="", command=self.set_color_black)
         self.black_button.pack(side=tk.TOP)
 
         # self.dropdown2 = tk.OptionMenu(master, self.selected_value2, "0", "25", "50")
@@ -206,6 +206,7 @@ class DrawingApp:
         self.R1.pack(side=tk.TOP)  
         self.R2 = tk.Radiobutton(self.toolbar, text="UNROUNDED", variable=self.radio, value=2,  command=self.set_unrounded)  
         self.R2.pack(side=tk.TOP)
+        self.radio.set(2)
 
         self.select_mode = False
 
@@ -220,13 +221,43 @@ class DrawingApp:
 
     def draw_rectangle(self):
         self.selected_item = Rectangle
+        self.rect_button.config(bg='yellow')
+        self.select_button.config(bg='lightgrey')
+        self.line_button.config(bg='lightgrey')
+        self.move_button.config(bg='lightgrey')
+        self.copy_button.config(bg='lightgrey')
+        self.delete_button.config(bg='lightgrey')
+        self.group_button.config(bg='lightgrey')
+        self.ungroup_selected_button.config(bg='lightgrey')
+        self.ungroup_all_button.config(bg='lightgrey')
+        self.edit_button.config(bg='lightgrey')
         self.activate_draw_mode()
 
     def draw_line(self):
         self.selected_item = Line
+        self.line_button.config(bg='yellow')
+        self.rect_button.config(bg='lightgrey')
+        self.select_button.config(bg='lightgrey')
+        self.move_button.config(bg='lightgrey')
+        self.copy_button.config(bg='lightgrey')
+        self.delete_button.config(bg='lightgrey')
+        self.group_button.config(bg='lightgrey')
+        self.ungroup_selected_button.config(bg='lightgrey')
+        self.ungroup_all_button.config(bg='lightgrey')
+        self.edit_button.config(bg='lightgrey')
         self.activate_draw_mode()
 
     def activate_selection(self):
+        self.select_button.config(bg='yellow')
+        self.rect_button.config(bg='lightgrey')
+        self.line_button.config(bg='lightgrey')
+        self.move_button.config(bg='lightgrey')
+        self.copy_button.config(bg='lightgrey')
+        self.delete_button.config(bg='lightgrey')
+        self.group_button.config(bg='lightgrey')
+        self.ungroup_selected_button.config(bg='lightgrey')
+        self.ungroup_all_button.config(bg='lightgrey')
+        self.edit_button.config(bg='lightgrey')
         self.selected_item = None
         self.select_mode = True
         self.selection_rect = None
@@ -308,6 +339,16 @@ class DrawingApp:
         
 
     def delete_selected(self):
+        self.delete_button.config(bg='yellow')
+        self.rect_button.config(bg='lightgrey')
+        self.select_button.config(bg='lightgrey')
+        self.line_button.config(bg='lightgrey')
+        self.move_button.config(bg='lightgrey')
+        self.copy_button.config(bg='lightgrey')
+        self.group_button.config(bg='lightgrey')
+        self.ungroup_selected_button.config(bg='lightgrey')
+        self.ungroup_all_button.config(bg='lightgrey')
+        self.edit_button.config(bg='lightgrey')
         temp_list = []
         if self.selection_rect:
             x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
@@ -334,6 +375,16 @@ class DrawingApp:
 
 
     def open_dialog(self):
+        self.edit_button.config(bg='yellow')
+        self.rect_button.config(bg='lightgrey')
+        self.select_button.config(bg='lightgrey')
+        self.line_button.config(bg='lightgrey')
+        self.move_button.config(bg='lightgrey')
+        self.copy_button.config(bg='lightgrey')
+        self.delete_button.config(bg='lightgrey')
+        self.group_button.config(bg='lightgrey')
+        self.ungroup_selected_button.config(bg='lightgrey')
+        self.ungroup_all_button.config(bg='lightgrey')
         if self.selection_rect:
             x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
             selected_shapes = []
@@ -367,18 +418,18 @@ class DrawingApp:
             # tk.Label(dialog, text="Color:").grid(row=0, column=0)
             # color_entry = tk.Entry(dialog)
             # color_entry.grid(row=0, column=1)
+            # red_button_border = tk.Frame(dialog, highlightbackground = "black",  highlightthickness = 2, bd=0)
+            self.red_edit_button=tk.Button(dialog,fg='red',bg='red',bd=0, text="", command=self.set_edit_color_red)
+            self.red_edit_button.pack(side=tk.TOP)
 
-            red_button=tk.Button(dialog,fg='red',bg='red', text="", command=self.set_edit_color_red)
-            red_button.pack(side=tk.TOP)
+            self.green_edit_button=tk.Button(dialog,fg='green',bg='green',bd=0, text="", command=self.set_edit_color_green)
+            self.green_edit_button.pack(side=tk.TOP)
 
-            green_button=tk.Button(dialog,fg='green',bg='green', text="", command=self.set_edit_color_green)
-            green_button.pack(side=tk.TOP)
+            self.blue_edit_button=tk.Button(dialog,fg='blue',bg='blue',bd=0, text="", command=self.set_edit_color_blue)
+            self.blue_edit_button.pack(side=tk.TOP)
 
-            blue_button=tk.Button(dialog,fg='blue',bg='blue', text="", command=self.set_edit_color_blue)
-            blue_button.pack(side=tk.TOP)
-
-            black_button=tk.Button(dialog,fg='black',bg='black', text="", command=self.set_edit_color_black)
-            black_button.pack(side=tk.TOP)
+            self.black_edit_button=tk.Button(dialog,fg='black',bg='black',bd=5, text="", command=self.set_edit_color_black)
+            self.black_edit_button.pack(side=tk.TOP)
             
             
             if isinstance(temp_shape,Rectangle):
@@ -388,12 +439,12 @@ class DrawingApp:
                 # radius_scale.grid(row=2, column=1)
                 # rounded_button=tk.Button(dialog, text="ROUNDED", command=self.set_edit_rounded)
                 # rounded_button.pack(side=tk.TOP)
-                radio = tk.IntVar()     
-                R1 = tk.Radiobutton(dialog, text="ROUNDED", variable=radio, value=1,  command=self.set_edit_rounded)  
-                R1.pack(side=tk.TOP)  
-                R2 = tk.Radiobutton(dialog, text="UNROUNDED", variable=radio, value=2,  command=self.set_edit_unrounded)  
-                R2.pack(side=tk.TOP)
-
+                self.edit_radio = tk.IntVar()     
+                self.edit_R1 = tk.Radiobutton(dialog, text="ROUNDED", variable=self.edit_radio, value=1,  command=self.set_edit_rounded)  
+                self.edit_R1.pack(side=tk.TOP)  
+                self.edit_R2 = tk.Radiobutton(dialog, text="UNROUNDED", variable=self.edit_radio, value=2,  command=self.set_edit_unrounded)  
+                self.edit_R2.pack(side=tk.TOP)
+                self.edit_radio.set(2)
             # Button to submit the inputs
             if isinstance(temp_shape,Rectangle):
                 submit_button = tk.Button(dialog, text="Submit", command=lambda: self.edit_selected(self.edit_color,  self.edit_radius,dialog))
@@ -404,6 +455,16 @@ class DrawingApp:
 
     def edit_selected(self,color, radius,dialog):
         dialog.destroy()
+        self.edit_button.config(bg='lightgrey')
+        self.rect_button.config(bg='lightgrey')
+        self.select_button.config(bg='lightgrey')
+        self.line_button.config(bg='lightgrey')
+        self.move_button.config(bg='lightgrey')
+        self.copy_button.config(bg='lightgrey')
+        self.delete_button.config(bg='lightgrey')
+        self.group_button.config(bg='lightgrey')
+        self.ungroup_selected_button.config(bg='lightgrey')
+        self.ungroup_all_button.config(bg='lightgrey')
         if self.selection_rect:
             x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
             # selected_shapes = []
@@ -418,28 +479,60 @@ class DrawingApp:
     
     def set_edit_color_red(self):
         self.edit_color="red"
+        self.red_edit_button.config(bd=5)
+        self.green_edit_button.config(bd=0)
+        self.black_edit_button.config(bd=0)
+        self.blue_edit_button.config(bd=0)
         return
     def set_edit_color_green(self):
         self.edit_color="green"
+        self.green_edit_button.config(bd=5)
+        self.red_edit_button.config(bd=0)
+        self.black_edit_button.config(bd=0)
+        self.blue_edit_button.config(bd=0)
         return
     def set_edit_color_blue(self):
         self.edit_color="blue"
+        self.blue_edit_button.config(bd=5)
+        self.red_edit_button.config(bd=0)
+        self.green_edit_button.config(bd=0)
+        self.black_edit_button.config(bd=0)
         return
     def set_edit_color_black(self):
         self.edit_color="black"
+        self.black_edit_button.config(bd=5)
+        self.red_edit_button.config(bd=0)
+        self.green_edit_button.config(bd=0)
+        self.blue_edit_button.config(bd=0)
 
 
     def set_color_red(self):
         self.color="red"
+        self.red_button.config(bd=5)
+        self.green_button.config(bd=0)
+        self.black_button.config(bd=0)
+        self.blue_button.config(bd=0)
         return
     def set_color_green(self):
         self.color="green"
+        self.green_button.config(bd=5)
+        self.red_button.config(bd=0)
+        self.black_button.config(bd=0)
+        self.blue_button.config(bd=0)
         return
     def set_color_blue(self):
         self.color="blue"
+        self.blue_button.config(bd=5)
+        self.red_button.config(bd=0)
+        self.green_button.config(bd=0)
+        self.black_button.config(bd=0)
         return
     def set_color_black(self):
         self.color="black"
+        self.black_button.config(bd=5)
+        self.red_button.config(bd=0)
+        self.green_button.config(bd=0)
+        self.blue_button.config(bd=0)
 
     def set_edit_rounded(self):
         self.edit_radius=25
@@ -456,6 +549,16 @@ class DrawingApp:
         return
 
     def group_selected(self):
+        self.group_button.config(bg='yellow')
+        self.rect_button.config(bg='lightgrey')
+        self.select_button.config(bg='lightgrey')
+        self.line_button.config(bg='lightgrey')
+        self.move_button.config(bg='lightgrey')
+        self.copy_button.config(bg='lightgrey')
+        self.delete_button.config(bg='lightgrey')
+        self.ungroup_selected_button.config(bg='lightgrey')
+        self.ungroup_all_button.config(bg='lightgrey')
+        self.edit_button.config(bg='lightgrey')
         group_list = []
         temp_list = []
         if self.selection_rect:
@@ -482,6 +585,16 @@ class DrawingApp:
         print(self.shapes)
 
     def activate_move_mode(self):
+        self.move_button.config(bg='yellow')
+        self.rect_button.config(bg='lightgrey')
+        self.select_button.config(bg='lightgrey')
+        self.line_button.config(bg='lightgrey')
+        self.copy_button.config(bg='lightgrey')
+        self.delete_button.config(bg='lightgrey')
+        self.group_button.config(bg='lightgrey')
+        self.ungroup_selected_button.config(bg='lightgrey')
+        self.ungroup_all_button.config(bg='lightgrey')
+        self.edit_button.config(bg='lightgrey')
         if self.selection_rect:
             self.select_mode = False
             self.move_mode = True
@@ -516,6 +629,16 @@ class DrawingApp:
         self.move_mode = False
 
     def ungroup_selected(self):
+        self.ungroup_selected_button.config(bg='yellow')
+        self.rect_button.config(bg='lightgrey')
+        self.select_button.config(bg='lightgrey')
+        self.line_button.config(bg='lightgrey')
+        self.move_button.config(bg='lightgrey')
+        self.copy_button.config(bg='lightgrey')
+        self.delete_button.config(bg='lightgrey')
+        self.group_button.config(bg='lightgrey')
+        self.ungroup_all_button.config(bg='lightgrey')
+        self.edit_button.config(bg='lightgrey')
         x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
         for i in range(len(self.shapes)):
             if type(self.shapes[i]) == list:
@@ -532,6 +655,16 @@ class DrawingApp:
         self.activate_draw_mode()
 
     def ungroup_all(self):
+        self.ungroup_all_button.config(bg='yellow')
+        self.rect_button.config(bg='lightgrey')
+        self.select_button.config(bg='lightgrey')
+        self.line_button.config(bg='lightgrey')
+        self.move_button.config(bg='lightgrey')
+        self.copy_button.config(bg='lightgrey')
+        self.delete_button.config(bg='lightgrey')
+        self.group_button.config(bg='lightgrey')
+        self.ungroup_selected_button.config(bg='lightgrey')
+        self.edit_button.config(bg='lightgrey')
         # temp_list = []
         # # if self.selection_rect:
         #     # x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
