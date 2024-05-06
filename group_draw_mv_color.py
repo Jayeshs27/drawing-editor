@@ -416,7 +416,6 @@ class DrawingApp:
         self.ungroup_all_button.config(bg='lightgrey')
         if self.selection_rect:
             x1, y1, x2, y2 = self.canvas.coords(self.selection_rect)
-            selected_shapes = []
             count=0
             for shape in self.shapes:
                 if type(shape)!=list:
@@ -449,16 +448,32 @@ class DrawingApp:
             # color_entry = tk.Entry(dialog)
             # color_entry.grid(row=0, column=1)
             # red_button_border = tk.Frame(dialog, highlightbackground = "black",  highlightthickness = 2, bd=0)
-            self.red_edit_button=tk.Button(dialog,fg='red',bg='red',bd=0, text="", command=self.set_edit_color_red)
+            if temp_shape.color=='red':
+                self.edit_color='red'
+                self.red_edit_button=tk.Button(dialog,fg='red',bg='red',bd=5, text="", command=self.set_edit_color_red)
+            else:
+                self.red_edit_button=tk.Button(dialog,fg='red',bg='red',bd=0, text="", command=self.set_edit_color_red)
             self.red_edit_button.pack(side=tk.TOP)
-
-            self.green_edit_button=tk.Button(dialog,fg='green',bg='green',bd=0, text="", command=self.set_edit_color_green)
+            
+            if temp_shape.color=='green':
+                self.edit_color='green'
+                self.green_edit_button=tk.Button(dialog,fg='green',bg='green',bd=5, text="", command=self.set_edit_color_green)
+            else:
+                self.green_edit_button=tk.Button(dialog,fg='green',bg='green',bd=0, text="", command=self.set_edit_color_green)
             self.green_edit_button.pack(side=tk.TOP)
 
-            self.blue_edit_button=tk.Button(dialog,fg='blue',bg='blue',bd=0, text="", command=self.set_edit_color_blue)
+            if temp_shape.color=='blue':
+                self.edit_color='blue'
+                self.blue_edit_button=tk.Button(dialog,fg='blue',bg='blue',bd=5, text="", command=self.set_edit_color_blue)
+            else:
+                self.blue_edit_button=tk.Button(dialog,fg='blue',bg='blue',bd=0, text="", command=self.set_edit_color_blue)
             self.blue_edit_button.pack(side=tk.TOP)
 
-            self.black_edit_button=tk.Button(dialog,fg='black',bg='black',bd=5, text="", command=self.set_edit_color_black)
+            if temp_shape.color=='black':
+                self.edit_color='black'
+                self.black_edit_button=tk.Button(dialog,fg='black',bg='black',bd=5, text="", command=self.set_edit_color_black)
+            else:
+                self.black_edit_button=tk.Button(dialog,fg='black',bg='black',bd=0, text="", command=self.set_edit_color_black)
             self.black_edit_button.pack(side=tk.TOP)
             
             
@@ -474,7 +489,12 @@ class DrawingApp:
                 self.edit_R1.pack(side=tk.TOP)  
                 self.edit_R2 = tk.Radiobutton(dialog, text="UNROUNDED", variable=self.edit_radio, value=2,  command=self.set_edit_unrounded)  
                 self.edit_R2.pack(side=tk.TOP)
-                self.edit_radio.set(2)
+                if temp_shape.radius==0:
+                    self.edit_radius=0
+                    self.edit_radio.set(2)
+                else:
+                    self.edit_radius=25
+                    self.edit_radio.set(1)
             # Button to submit the inputs
             if isinstance(temp_shape,Rectangle):
                 submit_button = tk.Button(dialog, text="Submit", command=lambda: self.edit_selected(self.edit_color,  self.edit_radius,dialog))
