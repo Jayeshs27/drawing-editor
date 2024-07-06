@@ -2,6 +2,7 @@
 1. This is a simple drawing-editor made in python which support two shapes rectangle and line.
 
 ### Demo 
+[Drawing-App-Demo.webm](https://github.com/Jayeshs27/drawing-editor/assets/117480214/e09954a1-6abe-499f-ace3-3572e589c905)
 
 ### Instructions:
 1. Clone the repositary. 
@@ -10,4 +11,3 @@
 > python3 draw.py
 
 
-[Screencast from 2024-07-06 14-25-09.webm](https://github.com/Jayeshs27/drawing-editor/assets/117480214/ee77a8bf-55db-404f-9cf4-7517bc5bfe3f)
