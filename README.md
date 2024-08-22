@@ -8,6 +8,6 @@
 1. Clone the repositary. 
 > git clone https://github.com/Jayeshs27/drawing-editor.git
 2. Run the following command
-> python3 draw.py
+> python3 main.py
 
 
